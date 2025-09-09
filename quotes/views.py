@@ -1,14 +1,26 @@
+import time
 from django.shortcuts import render
 from django.http import HttpRequest, HttpResponse
 # Create your views here.
 
-def home(request):
-    "respond to home request"
 
-    response_text = '''
-    <html>
-    <h1>Hello, world!</h1>
-    </html>
-    '''
+def home_page(request):
+    "respond to the URL '', delegate work to a template."
+    template_name = 'quotes/quote.html'
+    # dict of content variables (key-value pairs)
+    context = {
+        "time": time.ctime(),
 
-    return HttpResponse(response_text)
+    }
+    return render(request, template_name, context)
+
+def about_page(request):
+    "respond to the URL 'about', delegate work to a template."
+    
+    template_name = 'quotes/about.html'
+    # dict of content variables (key-value pairs)
+    context = {
+        "time": time.ctime(),
+
+    }
+    return render(request, template_name, context)
