@@ -1,5 +1,28 @@
+<!-- 
+File: about.html
+Author: Song Yu Chen (songyu@bu.edu) 9/8/2025
+Description: HTML that extends the base HTML for the about page of the quotes app.
+-->
 {% extends 'quotes/base.html' %}
 
 {% block content %}
+<main class="quote-card">
+    <h1>About Friedrich Nietzsche</h1>
+    <p>
+    Friedrich Nietzsche (1844–1900) was a German philosopher, cultural critic, and poet.  
+    He is best known for his works: <em>Thus Spoke Zarathustra</em>,  
+    <em>Beyond Good and Evil</em>, and <em>The Birth of Tragedy</em>. Nietzsche challenged traditional  
+    morality, religion, and the foundations of Western philosophy, introducing influential ideas like  
+    the <strong>Übermensch</strong>, the <strong>will to power</strong>, and the declaration that  
+    "God is dead."
+  </p>
 
+  <h2>About Me</h2>
+  <p>
+    My name is Song Yu Chen and I am a senior studying Computer Science at Boston University.
+    I created this project as part of a Django learning exercise.  
+    It demonstrates how to build a dynamic web app with quotes, images, and styled templates.  
+    The app’s goal is to provide an engaging way to explore Nietzsche’s philosophical insights through some of his famous quotes.
+  </p>
+</main>
 {% endblock %}

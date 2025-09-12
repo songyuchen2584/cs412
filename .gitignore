@@ -1,1 +1,4 @@
+# File: .gitignore
+# Author: Song Yu Chen (songyu@bu.edu) 9/8/2025
+# Description: .gitignore for the quotes app.
 .venv/

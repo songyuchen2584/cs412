@@ -1,5 +1,16 @@
+<!-- 
+File: quote.html
+Author: Song Yu Chen (songyu@bu.edu) 9/8/2025
+Description: HTML that extends the base HTML for the quote page of the quotes app.
+-->
 {% extends 'quotes/base.html' %}
 
 {% block content %}
+<main class = "image-card">
+    <img src={{picture}}>
+</main>
 
+<main class="quote-card">
+        <br>{{quote}}
+</main>
 {% endblock %}
