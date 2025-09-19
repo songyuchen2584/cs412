@@ -1,0 +1,34 @@
+<!-- 
+File: base.html
+Author: Song Yu Chen (songyu@bu.edu) 9/16/2025
+Description: The base HTML for the restaurant app.
+-->
+{% load static %}
+<html> 
+    <head>
+        <title>KFC</title>
+        <link rel="stylesheet" href="{% static 'restaurant_styles.css' %}">
+    </head>
+
+    <body>
+
+        <header>KFC</header>
+        <nav class="navbar">
+            <li> <a href="{% url 'main' %}">Main</a></li>
+            <li> <a href="{% url 'order' %}">Order</a></li>
+        </nav>
+        <!-- specific content-->
+        <div class= "container">
+            {% block content %}
+            {% endblock %}
+         </div>
+    <footer>
+        This page was created by songyu@bu.edu
+        <br>
+        Generated at: {{time}}
+    </footer>
+    
+    </body>
+
+
+    </html> 

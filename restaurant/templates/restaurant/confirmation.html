@@ -1,0 +1,52 @@
+<!-- 
+File: confirmation.html
+Author: Song Yu Chen (songyu@bu.edu) 9/18/2025
+Description: HTML that extends the base HTML for the confirmation page of the restaurant app.
+-->
+{% extends 'restaurant/base.html' %}
+
+{% block content %}
+<div>
+    <h1>Thank you for your order!</h1>
+        <p>We’ve received your request and are preparing it for you.</p>
+        <p>Your order will be ready at approximately:</p>
+        <h3>{{ ready_time }}</h2>
+
+        <h3>Customer Information</h3>
+        <p><span class="highlight">Name:</span> {{ name }}</p>
+        <p><span class="highlight">Email:</span> {{ email }}</p>
+        <p><span class="highlight">Phone:</span> {{ phone }}</p>
+
+        <h2>Order Details</h3>
+        <ul>
+            {% if wings_and_wedges %}
+                <li>Wings & Wedges Combo $6</li>
+            {% endif %}
+            {% if famous_bowl %}
+                <li>Famous Bowl $5</li>
+            {% endif %}
+            {% if hot_wings %}
+                <li>Hot & Spicy Wings (Spiiciness: {{spiciness}}) $4</li>
+            {% endif %}
+            {% if wedges %}
+                <li>Potato Wedges $2</li>
+            {% endif %}
+            {% if special %}
+                <li>{{special_item}} ${{special_price}}</li>
+            {% endif %}
+
+            <h4>Cost: $ {{cost}}</h4>
+            <h4>Tax: $ {{tax}}</h4>
+            <h3>Total: $ {{total}}</h3>
+        </ul>
+
+        <h3>Special Instructions</h3>
+        <p>{{ instructions|default:"None" }}</p>
+
+        <a class="back-btn" href="{% url 'order' %}">Back to Menu</a>
+     
+
+</div>
+
+
+{% endblock %}

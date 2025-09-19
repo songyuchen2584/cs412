@@ -1,0 +1,34 @@
+<!-- 
+File: main.html
+Author: Song Yu Chen (songyu@bu.edu) 9/16/2025
+Description: HTML that extends the base HTML for the main page of the restaurant app.
+-->
+{% extends 'restaurant/base.html' %}
+
+{% block content %}
+
+<main class = "image-card">
+    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSGR2tUI4StNM_2oGdthP3AdvcNl9eK5sf4nw&s">
+</main>
+
+<h2>Welcome to KFC</h2>
+
+<p><strong>Location:</strong> 123 Main Street, Boston, MA</p>
+
+<h3>Hours of Operation</h3>
+<table border="1" cellpadding="8" cellspacing="0">
+<tr>
+    <th>Day</th>
+    <th>Hours</th>
+</tr>
+<tr>
+    <td>Monday – Friday</td>
+    <td>10:00 AM – 10:00 PM</td>
+</tr>
+<tr>
+    <td>Saturday – Sunday</td>
+    <td>12:00 PM – 12:00 AM</td>
+</tr>
+</table>
+
+{% endblock %}
