@@ -1,0 +1,25 @@
+<!-- 
+File: show_all_profiles.html
+Author: Song Yu Chen (songyu@bu.edu) 9/24/2025
+Description: HTML that extends the base HTML for the show all profiles page of the mini_insta app.
+-->
+{% extends 'mini_insta/base.html' %}
+
+{% block content %}
+<h2>All Profiles</h1>
+
+<main class = "grid-container">
+<div>
+    {% for profile in profiles %}
+    <div class="profile">
+        <h2>{{ profile.display_name }}</h2>
+        <p>{{ profile.bio_text }}</p>
+        <a href="{% url 'show_profile' profile.pk %}">
+            <img src="{{ profile.profile_image_url }}" alt="{{ profile.display_name }}'s profile image">
+        </a>
+        <hr>
+    </div>
+    {% endfor %}
+</div>
+
+{% endblock %}

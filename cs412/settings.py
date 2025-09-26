@@ -39,7 +39,8 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "quotes", 
-    "restaurant",# NEW
+    "restaurant",
+    "mini_insta",# NEW
 ]
 
 MIDDLEWARE = [
@@ -131,7 +132,8 @@ STATIC_URL = 'static/'
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "static"),
     os.path.join(BASE_DIR, "quotes", "static"),
-    os.path.join(BASE_DIR, "restaurant", "static")
+    os.path.join(BASE_DIR, "restaurant", "static"),
+    os.path.join(BASE_DIR, "restaurant", "static"),
 ]
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
 MEDIA_URL= "media/"  # note: no leading slash!
