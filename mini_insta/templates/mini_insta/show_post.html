@@ -1,0 +1,29 @@
+<!-- 
+File: show_post.html
+Author: Song Yu Chen (songyu@bu.edu) 10/1/2025
+Description: HTML that extends the base HTML for the show post page of the mini_insta app.
+-->
+{% extends 'mini_insta/base.html' %}
+
+{% block content %}
+<h2>Post Detail</h2>
+
+<div class="post-detail-container">
+    <p>
+        <a href="{% url 'show_profile' post.profile.pk %}"> Back to {{ post.profile.display_name }}'s Profile</a>
+    </p>
+    <p class="post-caption">{{ post.caption }}</p>
+    <p class="post-timestamp">{{ post.timestamp }}</p>
+
+    <div class="post-photos-container">
+        {% for photo in post.get_all_photos %}
+            <div class="post-photo">
+                <img src="{{ photo.image_url }}" alt="Post photo" class="post-image">
+                <p class="photo-timestamp">{{ photo.timestamp }}</p>
+            </div>
+        {% empty %}
+            <p>No photos for this post.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

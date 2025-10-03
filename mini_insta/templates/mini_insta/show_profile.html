@@ -8,19 +8,47 @@ Description: HTML that extends the base HTML for the show all profiles page of t
 {% block content %}
 <h2>Profile</h1>
 
-<main class = "grid-container">
-<div>
-    <profile>
-        <div>
-            <h2>{{profile.display_name }}</h2>
-            <p>
-                {{profile.bio_text}}
-            </p>
+<main class="grid-container">
+  <div class="profile">
+    <div class="profile-header">
+      <h2>{{ profile.display_name }}</h2>
+      <p>{{ profile.bio_text }}</p>
+      <!-- Profile image -->
+      <img src="{{ profile.profile_image_url }}" class="profile-image" alt="Profile Image">
+    </div>
+    <hr>
 
-            <img src ="{{profile.profile_image_url}}">
+    <!-- Display the Posts of the profile -->
+    <div class="posts-container">
+    {% for post in profile.get_all_posts %}
+        <div class="post-card">
+          <!-- Display the first photo of this post -->
+          {% with photo=post.get_all_photos.first %}
+            {% if photo %}
+              <div class="post-photo">
+                <a href="{% url 'show_post' post.pk %}">
+                    <img src="{{ photo.image_url }}" alt="Post photo" class="post-image">
+                </a>
+              </div>
+            {% else %}
+              <div class="post-photo">
+                <img src="https://via.placeholder.com/150/FFFFFF/000000?text=NO+IMAGE" class="post-image">
+              </div>
+            {% endif %}
+          {% endwith %}
+
+          <!-- Post details -->
+          <p class="post-caption">{{ post.caption }}</p>
         </div>
-        <hr>
-    </profile>
-</div>
+    {% endfor %}
+    <div class="new-post-container" style="margin-top: 20px;">
+        <a href="{% url 'create_post' profile.pk %}" 
+        class="new-post-button">
+            + Create New Post
+        </a>
+    </div>
+    </div>
+  </div>
 
+</main>
 {% endblock %}
