@@ -1,0 +1,29 @@
+{% extends 'mini_insta/base.html' %}
+
+
+{% block content %}
+<h3>Are you sure you are going to delete this Post?</h3>
+<p>
+    <p class="post-caption">{{ post.caption }}</p>
+    <p class="post-timestamp">{{ post.timestamp }}</p>
+
+    <div class="post-photos-container">
+        {% for photo in post.get_all_photos %}
+            <div class="post-photo">
+                <img src= "{{ photo.get_image_url }}" alt="Post photo" class="post-image">
+                <p class="photo-timestamp">{{ photo.timestamp }}</p>
+            </div>
+        {% empty %}
+            <p>No photos for this post.</p>
+        {% endfor %}
+    
+    <form method="POST">
+        {% csrf_token %}
+        <div class="form-buttons">  
+            <input type="submit" value="Delete" class="submit-button">
+            <a href="{% url 'show_profile' pk=profile.pk %}" class="cancel-button">Cancel</a>
+        </div>
+    </form>
+</p>
+
+{% endblock %}

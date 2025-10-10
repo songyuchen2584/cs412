@@ -27,7 +27,7 @@ Description: HTML that extends the base HTML for the show all profiles page of t
             {% if photo %}
               <div class="post-photo">
                 <a href="{% url 'show_post' post.pk %}">
-                    <img src="{{ photo.image_url }}" alt="Post photo" class="post-image">
+                    <img src="{{ photo.get_image_url }}" alt="Post photo" class="post-image">
                 </a>
               </div>
             {% else %}
@@ -41,6 +41,9 @@ Description: HTML that extends the base HTML for the show all profiles page of t
           <p class="post-caption">{{ post.caption }}</p>
         </div>
     {% endfor %}
+    <div>
+      <a href="{% url 'update_profile' profile.pk %}" class="new-post-button"> Update Profile</a>
+    </div>
     <div class="new-post-container" style="margin-top: 20px;">
         <a href="{% url 'create_post' profile.pk %}" 
         class="new-post-button">

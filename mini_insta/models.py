@@ -21,7 +21,7 @@ class Profile(models.Model):
     def get_absolute_url(self):
         '''return a string representation of the url'''
 
-        return reverse('article', kwargs={'pk':self.pk})
+        return reverse('show_profile', kwargs={'pk':self.pk})
     
     def get_all_posts(self):
         '''Return the query-set of posts for this profile.'''
@@ -58,11 +58,21 @@ class Photo(models.Model):
 
     post = models.ForeignKey(Post, on_delete=models.CASCADE)
     image_url = models.URLField(blank=True)
+    image_file = models.ImageField(blank=True)
     timestamp = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         ''' Return a string representation of the URL of the photo'''
 
-        return f"{self.image_url}"        
+        return f"{self.get_image_url()}"       
+
+    def get_image_url(self):
+        ''' Returns the image_url if it exists, or else the image_file.url'''
+
+        if self.image_url:
+            return self.image_url
+        else:
+            return self.image_file.url
+
     class Meta:
         ordering = ['-timestamp']

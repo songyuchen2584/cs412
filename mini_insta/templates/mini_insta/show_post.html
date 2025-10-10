@@ -18,12 +18,17 @@ Description: HTML that extends the base HTML for the show post page of the mini_
     <div class="post-photos-container">
         {% for photo in post.get_all_photos %}
             <div class="post-photo">
-                <img src="{{ photo.image_url }}" alt="Post photo" class="post-image">
+                <img src= "{{ photo.get_image_url }}" alt="Post photo" class="post-image">
                 <p class="photo-timestamp">{{ photo.timestamp }}</p>
             </div>
         {% empty %}
             <p>No photos for this post.</p>
         {% endfor %}
+        <div>
+            <a href="{% url 'delete_post' post.pk %}" class="btn btn-danger">Delete</a>
+        <a href="{% url 'update_post' post.pk %}" class="btn btn-primary">Update</a>
+        </div>
+        
     </div>
 </div>
 {% endblock %}

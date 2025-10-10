@@ -4,9 +4,9 @@
 import random
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
-from django.views.generic import ListView, DetailView, CreateView
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from .models import Photo, Profile,Post
-from .forms import CreatePostForm
+from .forms import CreatePostForm, UpdatePostForm, UpdateProfileForm
 
 # Create your views here.
 class ProfileListView(ListView):
@@ -76,15 +76,66 @@ class CreatePostView(CreateView):
         # Save the Post instance with the profile
         post = form.save(commit=False)  # create a Post object but don't save to DB yet
         post.profile = profile
-        post.save()  # now save it to DB
+        post.save()  
 
-        # Create the associated Photo
-        image_url = form.cleaned_data.get('image_url')
-        if image_url:
-            Photo.objects.create(post=post, image_url=image_url)
+        # Get list of uploaded files
+        files = self.request.FILES.getlist('image_file')
+        print('Number of uploaded files:', len(files))
+
+        # Create Photo for each file
+        for file in files:
+            Photo.objects.create(post=post, image_file=file)
+
         return super().form_valid(form)
+
+    def form_invalid(self, form):
+        print("Form invalid errors:", form.errors)
+        print("FILES received:", self.request.FILES)
+        return super().form_invalid(form)
     
+    def post(self, request, *args, **kwargs):
+        print("FILES at post:", request.FILES)
+        return super().post(request, *args, **kwargs)
 
+class UpdateProfileView(UpdateView):
+    '''The view class to handle profile updates based on its PK'''
 
+    model = Profile
+    form_class = UpdateProfileForm
+    template_name = "mini_insta/update_profile_form.html"
 
+class DeletePostView(DeleteView):
+    '''The view class to handle the deletion of a post'''
+
+    model = Post
+    template_name = "mini_insta/delete_post_form.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # self.object is the Post being deleted
+        profile = self.object.profile  # get the related profile
+        context['profile'] = profile
+        return context
+
+    def get_success_url(self):
+        '''Return to the profile of the deleted post.'''
+        
+        pk = self.kwargs['pk']
+        post = Post.objects.get(pk=pk)
+        profile = post.profile
+        return reverse('show_profile', kwargs={'pk':profile.pk})
+    
+class UpdatePostView(UpdateView):
+    model = Post
+    form_class = UpdatePostForm
+    template_name = "mini_insta/update_post_form.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['post'] = self.object
+        return context
+
+    def get_success_url(self):
+        # Redirect to the show_post page for this post after update
+        return reverse('show_post', kwargs={'pk': self.object.pk})
 
