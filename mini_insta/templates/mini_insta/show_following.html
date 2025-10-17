@@ -1,3 +1,8 @@
+<!-- 
+File: show_following.html
+Author: Song Yu Chen (songyu@bu.edu) 10/16/2025
+Description:  HTML that extends the base HTML to show the profiles a profile is following in the mini_insta app.
+-->
 {% extends "mini_insta/base.html" %}
 {% block content %}
 <h2>{{ profile.display_name }} is Following ({{ profile.get_num_following }})</h2>
