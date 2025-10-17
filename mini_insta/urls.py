@@ -4,7 +4,7 @@
 from django.urls import path
 from django.conf import settings
 from . import views
-from .views import ProfileListView, ProfileDetailView, RandomProfileDetailView, PostDetailView, CreatePostView, UpdateProfileView, DeletePostView , UpdatePostView
+from .views import ProfileListView, ProfileDetailView, RandomProfileDetailView, PostDetailView, CreatePostView, UpdateProfileView, DeletePostView , UpdatePostView, ShowFollowersDetailView, ShowFollowingDetailView, PostFeedListView
 
 urlpatterns = [
     # stores urls for different views
@@ -16,4 +16,8 @@ urlpatterns = [
     path('profile/<int:pk>/update', UpdateProfileView.as_view(), name="update_profile"),
     path('post/<int:pk>/delete', DeletePostView.as_view(), name="delete_post"),
     path('post/<int:pk>/update/', UpdatePostView.as_view(), name='update_post'),
+    path('profile/<int:pk>/followers/', ShowFollowersDetailView.as_view(), name='show_followers'),
+    path('profile/<int:pk>/following/', ShowFollowingDetailView.as_view(), name='show_following'),
+    path('profile/<int:pk>/feed', PostFeedListView.as_view(), name='show_feed'),
+    path('profile/<int:pk>/search/', views.SearchView.as_view(), name='search'),
 ]

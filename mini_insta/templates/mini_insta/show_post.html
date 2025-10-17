@@ -12,6 +12,8 @@ Description: HTML that extends the base HTML for the show post page of the mini_
     <p>
         <a href="{% url 'show_profile' post.profile.pk %}"> Back to {{ post.profile.display_name }}'s Profile</a>
     </p>
+    <p><strong>Likes:</strong> {{ post.get_num_likes }}</p>
+
     <p class="post-caption">{{ post.caption }}</p>
     <p class="post-timestamp">{{ post.timestamp }}</p>
 
@@ -24,11 +26,25 @@ Description: HTML that extends the base HTML for the show post page of the mini_
         {% empty %}
             <p>No photos for this post.</p>
         {% endfor %}
-        <div>
-            <a href="{% url 'delete_post' post.pk %}" class="btn btn-danger">Delete</a>
-        <a href="{% url 'update_post' post.pk %}" class="btn btn-primary">Update</a>
-        </div>
         
+        <hr>
+    
     </div>
+    <h3>Comments:</h3>
+    <ul class="post-comments">
+        {% for comment in post.get_all_comments %}
+            <li>
+                <strong>{{ comment.profile.display_name }}</strong>: {{ comment.text }} <br>
+                <small>{{ comment.timestamp }}</small>
+            </li>
+        {% empty %}
+            <li>No comments yet.</li>
+        {% endfor %}
+    </ul>
+    <div>
+        <a href="{% url 'delete_post' post.pk %}" class="btn btn-danger">Delete</a>
+         <a href="{% url 'update_post' post.pk %}" class="btn btn-primary">Update</a>
+    </div>
+
 </div>
 {% endblock %}

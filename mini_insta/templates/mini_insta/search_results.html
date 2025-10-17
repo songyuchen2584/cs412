@@ -1,0 +1,53 @@
+{% extends 'mini_insta/base.html' %}
+
+{% block content %}
+<div class="centered-container">
+    <h2>Search Results for "{{ query }}"</h2>
+    <p><a href="{% url 'search' profile.pk %}">Back to Search</a></p>
+
+    <hr>
+
+    <h3>Matching Profiles</h3>
+    {% if matching_profiles %}
+        <div class="grid-container">
+            {% for p in matching_profiles %}
+                <div class="profile">
+                    <a href="{% url 'show_profile' p.pk %}">
+                        <img src="{{ p.profile_image_url }}" alt="{{ p.display_name }}" class="profile-image-small">
+                    </a>
+                    <h4>{{ p.display_name }}</h4>
+                    <p>@{{ p.username }}</p>
+                    <p>{{ p.bio_text|truncatewords:15 }}</p>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>No matching profiles found.</p>
+    {% endif %}
+
+    <hr>
+
+    <h3>Matching Posts</h3>
+    {% if matching_posts %}
+        {% for post in matching_posts %}
+            <div class="post-card">
+                <div class="feed-header">
+                    <a href="{% url 'show_profile' post.profile.pk %}">
+                        <img src="{{ post.profile.profile_image_url }}" alt="{{ post.profile.display_name }}" class="profile-image-small">
+                    </a>
+                    <strong><a href="{% url 'show_profile' post.profile.pk %}">{{ post.profile.display_name }}</a></strong>
+                </div>
+                <p class="post-caption">{{ post.caption }}</p>
+                {% with photos=post.get_all_photos %}
+                    {% if photos %}
+                        <img src="{{ photos.0.get_image_url }}" class="post-image" alt="Post image">
+                    {% endif %}
+                {% endwith %}
+                <p><strong>Likes:</strong> {{ post.get_num_likes }}</p>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>No posts found matching your search.</p>
+    {% endif %}
+</div>
+{% endblock %}

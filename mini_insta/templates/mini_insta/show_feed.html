@@ -1,0 +1,73 @@
+<!-- 
+File: show_feed.html
+Author: Song Yu Chen (songyu@bu.edu)
+Description: HTML template for displaying a feed of posts for a Profile, styled like show_post.html.
+-->
+{% extends 'mini_insta/base.html' %}
+
+{% block content %}
+<div class="centered-container">
+    {% if profile %}
+        <h2>{{ profile.display_name }}'s Feed</h2>
+        <p>
+            <a href="{% url 'show_profile' profile.pk %}">Back to Profile</a>
+        </p>
+    {% else %}
+        <h2>Your Feed</h2>
+    {% endif %}
+
+    {% for post in feed_posts %}
+    <div class="posts-container">
+        <div class="post-detail-container">
+            <div class="post-card">
+                <!-- Profile info -->
+                <div class="feed-header">
+                    <a href="{% url 'show_profile' post.profile.pk %}">
+                        <img src="{{ post.profile.profile_image_url }}" alt="{{ post.profile.display_name }}" class="profile-image-small">
+                    </a>
+                    <strong>
+                        <a href="{% url 'show_profile' post.profile.pk %}">{{ post.profile.display_name }}</a>
+                    </strong>
+                    <p class="post-timestamp">{{ post.timestamp }}</p>
+                </div>
+
+                <!-- Likes -->
+                <p><strong>Likes:</strong> {{ post.get_num_likes }}</p>
+
+                <!-- Caption -->
+                <p class="post-caption">{{ post.caption }}</p>
+
+                <!-- Photos -->
+                <div class="post-photos-container">
+                    {% for photo in post.get_all_photos %}
+                        <div class="post-photo">
+                            <img src="{{ photo.get_image_url }}" alt="Post photo" class="post-image">
+                            <p class="photo-timestamp">{{ photo.timestamp }}</p>
+                        </div>
+                    {% empty %}
+                        <p>No photos for this post.</p>
+                    {% endfor %}
+                </div>
+
+                <!-- Comments -->
+                <h3>Comments:</h3>
+                <ul class="post-comments">
+                    {% for comment in post.get_all_comments %}
+                        <li>
+                            <strong>{{ comment.profile.display_name }}</strong>: {{ comment.text }} <br>
+                            <small>{{ comment.timestamp }}</small>
+                        </li>
+                    {% empty %}
+                        <li>No comments yet.</li>
+                    {% endfor %}
+                </ul>
+
+                <hr>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <p>No posts in your feed yet. Follow some profiles!</p>
+    {% endfor %}
+</div>
+{% endblock %}

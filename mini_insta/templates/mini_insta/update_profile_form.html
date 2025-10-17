@@ -7,7 +7,7 @@ Description: HTML that extends the base HTML for the update profile page of the 
 
 {% block content %}
 <div class="create-post-container">
-    <h2>Profile Updatet</h2>
+    <h2>Profile Update</h2>
 
     <form method="POST" action = "{% url 'update_profile' profile.pk %}">
         {% csrf_token %}

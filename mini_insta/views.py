@@ -7,6 +7,7 @@ from django.urls import reverse
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from .models import Photo, Profile,Post
 from .forms import CreatePostForm, UpdatePostForm, UpdateProfileForm
+from django.db.models import Q
 
 # Create your views here.
 class ProfileListView(ListView):
@@ -139,3 +140,76 @@ class UpdatePostView(UpdateView):
         # Redirect to the show_post page for this post after update
         return reverse('show_post', kwargs={'pk': self.object.pk})
 
+class ShowFollowersDetailView(DetailView):
+    ''' The view class to handle the display of the followers of a profile.'''
+
+    model = Profile
+    template_name = "mini_insta/show_followers.html"
+    context_object_name = "profile"
+
+class ShowFollowingDetailView(DetailView):
+    ''' The view class to handle the display the profiles followed by a profile'''
+
+    model = Profile
+    template_name = "mini_insta/show_following.html"
+    context_object_name = "profile"
+
+class PostFeedListView(ListView):
+    '''Displays the feed of posts for a given Profile.'''
+
+    model = Post
+    template_name = "mini_insta/show_feed.html"
+    context_object_name = "feed_posts"
+
+    def get_queryset(self):
+        ''''Return posts for the feed of the given profile.'''
+
+        profile = Profile.objects.get(pk=self.kwargs['pk'])
+        return profile.get_post_feed()
+
+    def get_context_data(self, **kwargs):
+        '''Add the profile to the context.'''
+
+        context = super().get_context_data(**kwargs)
+        context['profile'] = Profile.objects.get(pk=self.kwargs['pk'])
+        return context
+    
+class SearchView(ListView):
+    ''' View for handling the search feature of the mini_insta app.'''
+    template_name = 'mini_insta/search_results.html'
+    context_object_name = 'posts'  # default object list name
+
+    def dispatch(self, request, *args, **kwargs):
+        '''If there's no query, show the search form.Otherwise, continue normal dispatch (to run get_queryset)'''
+
+        self.profile = get_object_or_404(Profile, pk=self.kwargs['pk'])
+        query = self.request.GET.get('query', None)
+
+        if not query:
+            return render(request, 'mini_insta/search.html', {'profile': self.profile})
+        
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_queryset(self):
+        '''Obtain Posts that contain the query. Return the QuerySet of matching Posts'''
+
+        query = self.request.GET.get('query', '')
+        # Search Posts that contain the query in caption
+        return Post.objects.filter(caption__icontains=query)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        query = self.request.GET.get('query', '')
+
+        # Matching Profiles
+        matching_profiles = Profile.objects.filter(
+            Q(username__icontains=query) |
+            Q(display_name__icontains=query) |
+            Q(bio_text__icontains=query)
+        )
+
+        context['profile'] = self.profile
+        context['query'] = query
+        context['matching_profiles'] = matching_profiles
+        context['matching_posts'] = self.get_queryset()
+        return context
