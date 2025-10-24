@@ -10,7 +10,7 @@ Description:  HTML that extends the base HTML for the home/feed of the mini_inst
     {% if profile %}
         <h2>{{ profile.display_name }}'s Feed</h2>
         <p>
-            <a href="{% url 'show_profile' profile.pk %}">Back to Profile</a>
+            <a href="{% url 'my_profile' %}">Back to Profile</a>
         </p>
     {% else %}
         <h2>Your Feed</h2>
@@ -41,7 +41,9 @@ Description:  HTML that extends the base HTML for the home/feed of the mini_inst
                 <div class="post-photos-container">
                     {% for photo in post.get_all_photos %}
                         <div class="post-photo">
-                            <img src="{{ photo.get_image_url }}" alt="Post photo" class="post-image">
+                            <a href="{% url 'show_post' post.pk %}">
+                                <img src="{{ photo.get_image_url }}" alt="Post photo" class="post-image">
+                            </a>
                             <p class="photo-timestamp">{{ photo.timestamp }}</p>
                         </div>
                     {% empty %}

@@ -56,4 +56,10 @@ class UpdatePostForm(forms.ModelForm):
     class Meta:
         '''asscoiate this form with the post modile from the databse'''
         model = Post
-        fields = ['caption']  
+        fields = ['caption'] 
+
+class CreateProfileForm(forms.ModelForm):
+    
+    class Meta:
+        model = Profile
+        fields = ['display_name', 'bio_text', 'profile_image_url'] 

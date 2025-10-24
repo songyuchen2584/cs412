@@ -26,7 +26,7 @@ Description: HTML that extends the base HTML for the delete post page of the min
         {% csrf_token %}
         <div class="form-buttons">  
             <input type="submit" value="Delete" class="submit-button">
-            <a href="{% url 'show_profile' pk=profile.pk %}" class="cancel-button">Cancel</a>
+            <a href="{% url 'my_profile' %}" class="cancel-button">Cancel</a>
         </div>
     </form>
 </p>

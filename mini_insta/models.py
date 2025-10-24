@@ -4,6 +4,7 @@
 from datetime import timezone
 from django.db import models
 from django.urls import reverse
+from django.contrib.auth.models import User
 
 # Create your models here.
 class Profile(models.Model):
@@ -14,6 +15,7 @@ class Profile(models.Model):
     profile_image_url = models.URLField(blank=True)
     bio_text = models.TextField(max_length=500, blank=True)
     join_date = models.DateTimeField(auto_now=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     
     def __str__(self):
         return f"{self.username} ({self.display_name})"
@@ -72,6 +74,10 @@ class Profile(models.Model):
 
         # filter Posts where the post.profile is one of these profiles
         return Post.objects.filter(profile__in=profiles_to_include).order_by('-timestamp')
+    
+    def get_liked_posts(self):
+        """Return a queryset of Posts this profile has liked."""
+        return Post.objects.filter(like__profile=self)
 
     class Meta:
         ordering = ['-join_date']

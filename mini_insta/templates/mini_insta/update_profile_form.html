@@ -9,7 +9,7 @@ Description: HTML that extends the base HTML for the update profile page of the 
 <div class="create-post-container">
     <h2>Profile Update</h2>
 
-    <form method="POST" action = "{% url 'update_profile' profile.pk %}">
+    <form method="POST" action = "{% url 'update_profile' %}">
         {% csrf_token %}
         
         <!-- Form fields -->
@@ -20,7 +20,7 @@ Description: HTML that extends the base HTML for the update profile page of the 
         <!-- Buttons -->
         <div class="form-buttons">
             <input type="submit" value="Submit" class="submit-button">
-            <a href="{% url 'show_profile' pk=profile.pk %}" class="cancel-button">Cancel</a>
+            <a href="{% url 'my_profile' %}" class="cancel-button">Cancel</a>
         </div>
     </form>
 </div>

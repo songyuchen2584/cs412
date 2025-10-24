@@ -1,0 +1,24 @@
+<!-- 
+File: create_profile_form.html
+Author: Song Yu Chen (songyu@bu.edu) 10/23/2025
+Description: HTML that extends the base HTML for the create profile page of the mini_insta app.
+-->
+{% extends 'mini_insta/base.html' %}
+
+{% block content %}
+<h1> Register for a new Account</h1>
+
+<form action ="{% url 'create_profile'%}" method="POST">
+    {% csrf_token %}
+    
+    <h3>User Info</h3>
+    {{ user_form.as_p }}
+
+    <h3>Profile Info</h3>
+    {{ form.as_p }}
+
+    <button type="submit">Create Profile</button>
+</form>
+
+
+{% endblock %}

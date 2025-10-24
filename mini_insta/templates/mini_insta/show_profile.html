@@ -22,6 +22,15 @@ Description: HTML that extends the base HTML for the show all profiles page of t
       <p>
         <a href="{% url 'show_following' profile.pk %}"><strong>Following:</strong>{{ profile.get_num_following }}</a>
       </p>
+      {% if request.user.is_authenticated and not is_own_profile %}
+          {% if is_following %}
+              <a href="{% url 'unfollow_profile' profile.pk %}" class="btn">Unfollow 🚫</a>
+          {% else %}
+              <a href="{% url 'follow_profile' profile.pk %}" class="btn">Follow ➕</a>
+          {% endif %}
+      {% endif %}
+
+
       
     </div>
     <hr>
@@ -49,15 +58,17 @@ Description: HTML that extends the base HTML for the show all profiles page of t
           <p class="post-caption">{{ post.caption }}</p>
         </div>
     {% endfor %}
-    <div>
-      <a href="{% url 'update_profile' profile.pk %}" class="new-post-button"> Update Profile</a>
-    </div>
-    <div class="new-post-container" style="margin-top: 20px;">
-        <a href="{% url 'create_post' profile.pk %}" 
-        class="new-post-button">
-            + Create New Post
-        </a>
-    </div>
+    {% if request.user.is_authenticated and request.user == profile.user %}
+      <div>
+        <a href="{% url 'update_profile' %}" class="new-post-button"> Update Profile</a>
+      </div>
+      <div class="new-post-container" style="margin-top: 20px;">
+          <a href="{% url 'create_post' %}" 
+          class="new-post-button">
+              + Create New Post
+          </a>
+      </div>
+    {% endif %}
     </div>
   </div>
 
