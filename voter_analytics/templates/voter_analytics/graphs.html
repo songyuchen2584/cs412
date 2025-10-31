@@ -1,0 +1,122 @@
+{% extends 'voter_analytics/base.html' %}
+
+{% block title %}Voter Data Graphs - Voter Analytics{% endblock %}
+
+{% block content %}
+    <h1>Voter Data Analysis</h1>
+
+    <!-- Filter Form (reused from Task 2) -->
+    <div class="filter-form">
+        <h2>Filter Data</h2>
+        <form method="get" action="{% url 'graphs' %}">
+            <div class="filter-row">
+                <div class="filter-group">
+                    <label for="party">Party Affiliation:</label>
+                    <select name="party" id="party">
+                        <option value="">All Parties</option>
+                        {% for party in parties %}
+                        <option value="{{ party }}" {% if selected_party == party %}selected{% endif %}>
+                            {{ party }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label for="min_birth_year">Minimum Birth Year:</label>
+                    <select name="min_birth_year" id="min_birth_year">
+                        <option value="">Any Year</option>
+                        {% for year in years %}
+                        <option value="{{ year }}" {% if selected_min_year == year|stringformat:"s" %}selected{% endif %}>
+                            {{ year }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label for="max_birth_year">Maximum Birth Year:</label>
+                    <select name="max_birth_year" id="max_birth_year">
+                        <option value="">Any Year</option>
+                        {% for year in years %}
+                        <option value="{{ year }}" {% if selected_max_year == year|stringformat:"s" %}selected{% endif %}>
+                            {{ year }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label for="voter_score">Voter Score:</label>
+                    <select name="voter_score" id="voter_score">
+                        <option value="">Any Score</option>
+                        {% for score in voter_scores %}
+                        <option value="{{ score }}" {% if selected_voter_score == score|stringformat:"s" %}selected{% endif %}>
+                            {{ score }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <div class="filter-group">
+                <label>Voted in Elections:</label>
+                <div class="checkbox-group">
+                    <div class="checkbox-item">
+                        <input type="checkbox" name="v20state" id="v20state" value="TRUE" 
+                               {% if checked_v20state %}checked{% endif %}>
+                        <label for="v20state">2020 State Election</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" name="v21town" id="v21town" value="TRUE"
+                               {% if checked_v21town %}checked{% endif %}>
+                        <label for="v21town">2021 Town Election</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" name="v21primary" id="v21primary" value="TRUE"
+                               {% if checked_v21primary %}checked{% endif %}>
+                        <label for="v21primary">2021 Primary</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" name="v22general" id="v22general" value="TRUE"
+                               {% if checked_v22general %}checked{% endif %}>
+                        <label for="v22general">2022 General Election</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" name="v23town" id="v23town" value="TRUE"
+                               {% if checked_v23town %}checked{% endif %}>
+                        <label for="v23town">2023 Town Election</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="button-group">
+                <button type="submit">Apply Filters</button>
+                <a href="{% url 'graphs' %}" class="reset-button">Clear Filters</a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Results Information -->
+    <div class="results-info">
+        <strong>Showing data for {{ total_voters }} voter(s)</strong>
+    </div>
+
+    <!-- Graphs Display -->
+    <div class="graphs-container">
+        <!-- Graph 1: Distribution by Year of Birth -->
+        <div class="graph-card">
+            {{ graph1|safe }}
+        </div>
+
+        <!-- Graph 2: Distribution by Party Affiliation -->
+        <div class="graph-card">
+            {{ graph2|safe }}
+        </div>
+
+        <!-- Graph 3: Voter Participation by Election -->
+        <div class="graph-card">
+            {{ graph3|safe }}
+        </div>
+    </div>
+{% endblock %}

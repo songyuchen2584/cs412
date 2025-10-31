@@ -11,4 +11,5 @@ urlpatterns = [
     path(r'quote', views.quote_page, name="quote"),
     path(r'about', views.about_page, name="about"),
     path(r'show_all', views.show_all_page, name="show_all"),
+    
 ]

@@ -1,0 +1,34 @@
+<!-- 
+File: base.html
+Author: Song Yu Chen (songyu@bu.edu) 10/29/2025
+Description: The base HTML for the quotes app.
+-->
+{% load static %}
+<html> 
+    <head>
+        <title>Voter_Analytics</title>
+        <link rel="stylesheet" href="{% static 'voter_analytics_styles.css' %}">
+    </head>
+
+    <body>
+
+        <nav class="nav-links">
+            <a href="{% url 'voters' %}">Home</a>
+            <a href="{% url 'voters_list' %}">All Voters</a>
+            <a href="{% url 'graphs' %}">Graphs</a>
+        </nav>
+        <!-- specific content-->
+        <div class= "container">
+            {% block content %}
+            {% endblock %}
+         </div>
+    <footer>
+        This page was created by songyu@bu.edu
+        <br>
+        Generated at: {{time}}
+    </footer>
+    
+    </body>
+
+
+</html> 

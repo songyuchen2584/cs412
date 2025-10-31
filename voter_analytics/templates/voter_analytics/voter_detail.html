@@ -1,0 +1,97 @@
+{% extends 'voter_analytics/base.html' %}
+
+{% block title %}{{ voter.first_name }} {{ voter.last_name }} - Voter Details{% endblock %}
+
+{% block content %}
+    <div class="breadcrumb">
+        <a href="{% url 'voters' %}">← Back to Voter List</a>
+    </div>
+
+    <h1>Voter Details</h1>
+
+    <div class="voter-card">
+        <!-- Personal Information -->
+        <div class="section">
+            <h2>Personal Information</h2>
+            <div class="info-row">
+                <div class="info-label">Voter ID Number:</div>
+                <div class="info-value">{{ voter.voter_id_number }}</div>
+            </div>
+            <div class="info-row">
+                <div class="info-label">Full Name:</div>
+                <div class="info-value">{{ voter.first_name }} {{ voter.last_name }}</div>
+            </div>
+            <div class="info-row">
+                <div class="info-label">Date of Birth:</div>
+                <div class="info-value">{{ voter.DOB|date:"F d, Y" }}</div>
+            </div>
+            <div class="info-row">
+                <div class="info-label">Date of Registration:</div>
+                <div class="info-value">{{ voter.date_of_registration|date:"F d, Y" }}</div>
+            </div>
+        </div>
+
+        <!-- Address Information -->
+        <div class="section">
+            <h2>Residential Address</h2>
+            <div class="info-row">
+                <div class="info-label">Street Address:</div>
+                <div class="info-value">
+                    {{ voter.street_number }} {{ voter.street_name }}
+                    {% if voter.apartment_number %}
+                        <br>Apartment: {{ voter.apartment_number }}
+                    {% endif %}
+                </div>
+            </div>
+            <div class="info-row">
+                <div class="info-label">Zip Code:</div>
+                <div class="info-value">{{ voter.zip_code }}</div>
+            </div>
+            <div class="info-row">
+                <div class="info-label">Precinct Number:</div>
+                <div class="info-value">{{ voter.precinct_number }}</div>
+            </div>
+            
+        </div>
+
+        <!-- Political Information -->
+        <div class="section">
+            <h2>Political Information</h2>
+            <div class="info-row">
+                <div class="info-label">Party Affiliation:</div>
+                <div class="info-value">{{ voter.party }}</div>
+            </div>
+            <div class="info-row">
+                <div class="info-label">Voter Score:</div>
+                <div class="info-value">{{ voter.voter_score }}</div>
+            </div>
+        </div>
+
+        <!-- Voting History -->
+        <div class="section">
+            <h2>Voting History</h2>
+            <div class="voting-history">
+                <div class="election-item {% if voter.v20state == 'TRUE' %}voted-yes{% else %}voted-no{% endif %}">
+                    <strong>2020 State Election</strong><br>
+                    Voted: {% if voter.v20state == 'TRUE' %}✓ Yes{% else %}✗ No{% endif %}
+                </div>
+                <div class="election-item {% if voter.v21town == 'TRUE' %}voted-yes{% else %}voted-no{% endif %}">
+                    <strong>2021 Town Election</strong><br>
+                    Voted: {% if voter.v21town == 'TRUE' %}✓ Yes{% else %}✗ No{% endif %}
+                </div>
+                <div class="election-item {% if voter.v21primary == 'TRUE' %}voted-yes{% else %}voted-no{% endif %}">
+                    <strong>2021 Primary Election</strong><br>
+                    Voted: {% if voter.v21primary == 'TRUE' %}✓ Yes{% else %}✗ No{% endif %}
+                </div>
+                <div class="election-item {% if voter.v22general == 'TRUE' %}voted-yes{% else %}voted-no{% endif %}">
+                    <strong>2022 General Election</strong><br>
+                    Voted: {% if voter.v22general == 'TRUE' %}✓ Yes{% else %}✗ No{% endif %}
+                </div>
+                <div class="election-item {% if voter.v23town == 'TRUE' %}voted-yes{% else %}voted-no{% endif %}">
+                    <strong>2023 Town Election</strong><br>
+                    Voted: {% if voter.v23town == 'TRUE' %}✓ Yes{% else %}✗ No{% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
