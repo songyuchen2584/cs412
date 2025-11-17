@@ -409,3 +409,33 @@ class UnlikePostView(LoginRequiredMixin, TemplateView):
 
         Like.objects.filter(profile=profile, post=post).delete()
         return redirect(reverse('show_post', kwargs={'pk':post.pk}))
+    
+
+#######################################################################################
+# enable REST API for app
+
+from rest_framework import generics
+from .serializers import *
+
+class PostListAPIView(generics.ListCreateAPIView):
+    '''
+    This view will expose the API for Articles with List and Create
+    '''
+    queryset = Post.objects.all()
+    serializer_class = PostSerializer
+
+    def create(self, validated_data):
+        '''handle object creattion'''
+
+        print(f'PostSerializer.create(), validated_data = {validated_data}.')
+
+        # create an Object
+        post = Post.objects.create(user=User.objects.first(),**validated_data)
+
+        # save to db
+        post.user = User.objects.first()
+
+        post.save()
+
+        return post
+

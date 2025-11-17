@@ -1,0 +1,22 @@
+<!-- 
+File: picture_list.html
+Author: Song Yu Chen (songyu@bu.edu) 11/15/2025
+Description: The picture_list HTML for the dadjokes app.
+-->
+{% extends "dadjokes/base.html" %}
+
+{% block content %}
+<h2>All Pictures</h2>
+
+{% for picture in pictures %}
+    <div>
+        <img src="{{ picture.image_url }}" alt="Funny picture" style="max-width:300px;">
+        <p><em>– {{ picture.contributor }}</em></p>
+        <a href="{% url 'picture_detail' picture.pk %}">View</a>
+        <hr>
+    </div>
+{% empty %}
+    <p>No pictures found.</p>
+{% endfor %}
+
+{% endblock %}

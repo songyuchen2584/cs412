@@ -1,0 +1,16 @@
+<!-- 
+File: home.html
+Author: Song Yu Chen (songyu@bu.edu) 11/13/2025
+Description: HTML that extends the base HTML for the home page of the dadjokes app.
+-->
+{% extends 'dadjokes/base.html' %}
+
+{% block content %}
+<main class = "image-card">
+    <img src={{picture.image_url}}>
+</main>
+
+<main class="joke-card">
+        <br>{{joke.text}}
+</main>
+{% endblock %}

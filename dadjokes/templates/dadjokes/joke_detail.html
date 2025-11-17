@@ -1,0 +1,16 @@
+<!-- 
+File: joke_detail.html
+Author: Song Yu Chen (songyu@bu.edu) 11/13/2025
+Description: The joke_detail HTML for the dadjokes app.
+-->
+
+{% extends "dadjokes/base.html" %}
+
+{% block content %}
+<h2>Joke #{{ joke.pk }}</h2>
+
+<p>{{ joke.text }}</p>
+<p><em>– {{ joke.contributor }}</em></p>
+
+<a href="{% url 'jokes' %}">Back to all jokes</a>
+{% endblock %}
