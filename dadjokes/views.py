@@ -1,5 +1,4 @@
 import random
-from urllib import response
 from django.shortcuts import render
 
 # Create your views here.
@@ -8,6 +7,7 @@ from django.shortcuts import render
 from rest_framework import generics
 from .serializers import *
 from django.views.generic import DetailView, TemplateView, ListView
+from rest_framework.response import Response
 
 class JokeListAPIView(generics.ListCreateAPIView):
     '''
@@ -46,11 +46,11 @@ class RandomJokeAPIView(generics.ListAPIView):
     def get(self, request, *args, **kwargs):
         jokes = list(Joke.objects.all())
         if not jokes:
-            return response({"detail": "No jokes available"}, status=404)
+            return Response({"detail": "No jokes available"}, status=404)
 
         joke = random.choice(jokes)
         serializer = JokeSerializer(joke)
-        return response(serializer.data)
+        return Response(serializer.data)
 
 
 class RandomPictureAPIView(generics.ListAPIView):
@@ -61,11 +61,11 @@ class RandomPictureAPIView(generics.ListAPIView):
     def get(self, request, *args, **kwargs):
         pictures = list(Picture.objects.all())
         if not pictures:
-            return response({"detail": "No pictures available"}, status=404)
+            return Response({"detail": "No pictures available"}, status=404)
 
         picture = random.choice(pictures)
         serializer = PictureSerializer(picture)
-        return response(serializer.data)
+        return Response(serializer.data)
 
 
 
