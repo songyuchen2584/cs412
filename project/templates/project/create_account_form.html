@@ -1,0 +1,24 @@
+<!-- 
+File: create_account_form.html
+Author: Song Yu Chen (songyu@bu.edu) 11/30/2025
+Description: HTML that extends the base HTML for the create account form of the project app.
+-->
+{% extends 'project/base.html' %}
+
+{% block content %}
+<h1> Register for a new Account</h1>
+
+<form action ="{% url 'create_account'%}" method="POST">
+    {% csrf_token %}
+    
+    <h3>User Info</h3>
+    {{ user_form.as_p }}
+
+    <h3>Profile Info</h3>
+    {{ form.as_p }}
+
+    <button type="submit">Create Account</button>
+</form>
+
+
+{% endblock %}

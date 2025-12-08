@@ -1,0 +1,30 @@
+<!-- 
+File: show_account.html
+Author: Song Yu Chen (songyu@bu.edu) 11/30/2025
+Description: HTML that extends the base HTML for the show_account page of the project app.
+-->
+{% extends 'project/base.html' %}
+
+{% block content %}
+<h2>Account</h1>
+
+<main>
+    <!-- Account details-->
+    <div class = "account">
+         <img src = "{{account.profile_picture}}" class = "profile_picture">
+        <h2> {{account.username}}</h2>
+        <p>
+            {{account.biography}}
+        </p>
+    </div>
+
+    <!-- What this account is selling-->
+
+
+    <!-- If logged as this account, show purchases-->
+    
+
+
+
+</main>
+{% endblock %}

@@ -1,0 +1,31 @@
+<!-- 
+File: base.html
+Author: Song Yu Chen (songyu@bu.edu) 11/25/2025
+Description: The base HTML for the project app.
+-->
+{% load static %}
+<html> 
+    <head>
+        <title>Market</title>
+        <link rel="stylesheet" href="{% static 'project_styles.css' %}">
+    </head>
+
+    <body>
+
+        <header>Market</header>
+        <nav class="navbar">
+            <li> <a href="{% url 'show_accounts' %}">Home</a></li>
+        </nav>
+        <!-- specific content-->
+        <div class= "container">
+            {% block content %}
+            {% endblock %}
+         </div>
+    <footer>
+        This page was created by songyu@bu.edu
+    </footer>
+    
+    </body>
+
+
+</html> 

@@ -1,0 +1,8 @@
+.account-card {
+    background: white;
+}
+
+.profile_picture {
+    max-width: 300px;
+    object-fit: cover;
+}

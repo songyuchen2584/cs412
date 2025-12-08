@@ -1,0 +1,27 @@
+<!-- 
+File: login.html
+Author: Song Yu Chen (songyu@bu.edu) 12/2/2025
+Description: HTML that extends the base HTML for the login page of the project app.
+-->
+{% extends 'project/base.html' %}
+
+{% block content %}
+
+<h1> Login </h1>
+<form action="{% url 'login' %}" method ="POST">
+    {% csrf_token %}
+
+    {{form}}
+    
+    <input type="submit" value="Login">
+    {% if request.GET.next %}
+    <input type="hidden" name="next" value="{{request.GET.next}}">
+    {% else %}
+    <input type ="hidden" name="next" value="{% url 'show_accounts' %}">
+    {% endif %}
+</form>
+
+<h2> Don't have an account? Register here.</h2>
+<a href="{% url 'create_account' %}">Register</a>
+
+{% endblock %}

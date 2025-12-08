@@ -4,6 +4,7 @@ from django.shortcuts import render
 # Create your views here.
 
 ###---------------API-----------------###
+from dadjokes.models import Picture, Joke
 from rest_framework import generics
 from .serializers import JokeSerializer, PictureSerializer
 from django.views.generic import DetailView, TemplateView, ListView
@@ -54,9 +55,8 @@ class RandomJokeAPIView(generics.ListAPIView):
 
 
 class RandomPictureAPIView(generics.ListAPIView):
-    """
-    'api/random_picture' – GET one random Picture as JSON.
-    """
+    queryset = Picture.objects.all()
+    serializer_class = PictureSerializer
 
     def get(self, request, *args, **kwargs):
         pictures = list(Picture.objects.all())

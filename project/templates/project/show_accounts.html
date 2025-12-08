@@ -1,0 +1,20 @@
+<!-- 
+File: show_accounts.html
+Author: Song Yu Chen (songyu@bu.edu) 11/25/2025
+Description: HTML that extends the base HTML for the show_accounts page of the project app.
+-->
+{% extends 'project/base.html' %}
+
+{% block content %}
+<h1>All Accounts</h1>
+
+  {% for account in accounts %}
+    <div>
+        {{account.username}}
+        <img src="{{ account.profile_picture.url }}" alt="No profile picture available.">
+    </div>
+  {% empty %}
+    <p>No accounts created.</p>
+  {% endfor %}
+
+{% endblock %}
