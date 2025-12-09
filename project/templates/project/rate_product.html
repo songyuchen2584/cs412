@@ -1,0 +1,12 @@
+{% extends "project/base.html" %}
+{% block content %}
+
+<h2>Rate {{ object.name }}</h2>
+
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Submit Rating</button>
+</form>
+
+{% endblock %}

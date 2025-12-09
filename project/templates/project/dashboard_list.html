@@ -1,0 +1,74 @@
+{% extends "project/base.html" %}
+{% block content %}
+
+<h2>{{ title }}</h2>
+
+{% for item in items %}
+    <div class="card product-card">
+
+        {% if mode == "products" %}
+            <!-- Product summary -->
+            <a href="{% url 'show_product' item.pk %}">
+                {% if item.images.first %}
+                    <img src="{{ item.images.first.image.url }}" class="product-thumb">
+                {% elif item.image %}
+                    <img src="{{ item.image.url }}" class="product-thumb">
+                {% endif %}
+                <h3>{{ item.name }}</h3>
+                <p>${{ item.expected_price }}</p>
+                <p>Status: {{ item.status }}</p>
+            </a>
+
+            <!-- Highest bid for this product -->
+            {% if item.highest_bid %}
+                <p><strong>Highest Bid:</strong> ${{ item.highest_bid }}</p>
+            {% else %}
+                <p><strong>No bids yet</strong></p>
+            {% endif %}
+
+            <!-- All bids on this product -->
+            <h4>Bids on this product</h4>
+            {% if item.bid_set.all %}
+                {% for bid in item.bid_set.all %}
+                    <div class="bid-row">
+                        <p>
+                            <strong>{{ bid.profile.username }}</strong> bid
+                            <strong>${{ bid.bid_price }}</strong>
+                            ({{ bid.status }})
+                        </p>
+
+                        {% if bid.status != "accepted" and item.status == "available" %}
+                            <a href="{% url 'accept_bid' bid.pk %}">Accept Bid</a>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p>No bids placed yet.</p>
+            {% endif %}
+
+        {% elif mode == "favorites" %}
+            <a href="{% url 'show_product' item.product.pk %}">
+                {% if item.product.images.first %}
+                    <img src="{{ item.product.images.first.image.url }}" class="product-thumb">
+                {% elif item.product.image %}
+                    <img src="{{ item.product.image.url }}" class="product-thumb">
+                {% endif %}
+                <h3>{{ item.product.name }}</h3>
+                <p>Expected Price: ${{ item.product.expected_price }}</p>
+            </a>
+            
+
+        {% endif %}
+        
+        {% if item.highest_bid %}
+            <p><strong>Highest Bid:</strong> ${{ item.highest_bid }}</p>
+        {% else %}
+            <p><strong>No bids yet</strong></p>
+        {% endif %}
+    </div>
+
+{% empty %}
+    <p>No items found.</p>
+{% endfor %}
+
+{% endblock %}

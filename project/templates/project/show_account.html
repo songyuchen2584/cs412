@@ -10,18 +10,57 @@ Description: HTML that extends the base HTML for the show_account page of the pr
 
 <main>
     <!-- Account details-->
-    <div class = "account">
-         <img src = "{{account.profile_picture}}" class = "profile_picture">
-        <h2> {{account.username}}</h2>
-        <p>
-            {{account.biography}}
-        </p>
+    <div class="profile-card">
+
+        {% if account.profile_picture %}
+            <img src="{{ account.profile_picture.url }}" class="profile-image">
+        {% endif %}
+
+        <h2>{{ account.username }}</h2>
+        <p>{{ account.biography }}</p>
+
+        {% if is_own_account %}
+            <a href="{% url 'update_account' %}">Edit Profile</a>
+            <a href="{% url 'delete_account' %}">Delete Account</a>
+        {% endif %}
+
     </div>
 
-    <!-- What this account is selling-->
+    <h3>Items Sold by {{ account.username }}</h3>
 
+<div class="sold-products-grid">
 
-    <!-- If logged as this account, show purchases-->
+{% for product in sold_products %}
+    <div class="card product-card">
+
+        <a href="{% url 'show_product' product.pk %}">
+            {% if product.images.first %}
+                <img src="{{ product.images.first.image.url }}" class="product-thumb">
+            {% elif product.image %}
+                <img src="{{ product.image.url }}" class="product-thumb">
+            {% endif %}
+            <h4>{{ product.name }}</h4>
+        </a>
+
+        <p><strong>Final Price:</strong>
+            {% if product.highest_bid %}
+                ${{ product.highest_bid }}
+            {% else %}
+                ${{ product.expected_price }}
+            {% endif %}
+        </p>
+
+        {% if product.rating %}
+            <p><strong>Rating:</strong> {{ product.rating }} </p>
+        {% endif %}
+
+    </div>
+
+{% empty %}
+    <p>This user has not sold any items yet.</p>
+{% endfor %}
+
+</div>
     
 
 

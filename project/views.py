@@ -1,13 +1,18 @@
-from django.shortcuts import render
+from datetime import date
+from django.shortcuts import redirect, render
 from .models import *
-from django.views.generic import ListView, DetailView, TemplateView, CreateView, UpdateView
+from django.views.generic import ListView, DetailView, TemplateView, CreateView, UpdateView, DeleteView, FormView
 from django.contrib.auth.mixins import LoginRequiredMixin
-from .forms import CreateAccountForm
-from django.contrib.auth.forms import UserCreationForm, UpdateAccountForm
+from .forms import CreateAccountForm, CreateBidForm, CreateProductForm, RateProductForm, UpdateAccountForm, UpdateProductForm
+from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django.contrib.auth import login
 from django.urls import reverse
 from django.shortcuts import get_object_or_404
+from django.db.models import Max
+from django.db import transaction
+from django.db.models import Q
+
 
 # Create your views here.
 
@@ -26,9 +31,80 @@ class AccountDetailView(DetailView):
     template_name = "project/show_account.html"
     context_object_name = "account"
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # Add sold products for this account
+        context["sold_products"] = (
+            Product.objects
+            .filter(profile=self.object, status="sold")
+            .prefetch_related("images")
+            .annotate(highest_bid=Max("bid__bid_price"))
+        )
+
+        return context
+
+class ProductListView(ListView):
+    model = Product
+    template_name = "project/show_products.html"
+    context_object_name = "products"
+
+    def get_queryset(self):
+        qs = Product.objects.filter(status="available")
+
+        query = self.request.GET.get('query')
+        category = self.request.GET.get('category')
+
+        if query:
+            qs = qs.filter(
+                Q(name__icontains=query) |
+                Q(description__icontains=query)
+            )
+
+        if category:
+            qs = qs.filter(category__icontains=category)
+        
+        qs = qs.annotate(highest_bid=Max("bid__bid_price"))
+
+        return qs
+
+
+class ProductDetailView(DetailView):
+    model = Product
+    template_name = "project/show_product.html"
+    context_object_name = "product"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        product = self.get_object()
+        bids = Bid.objects.filter(product=product)
+        context['bids'] = bids
+
+        context['highest_bid'] = bids.aggregate(Max("bid_price"))["bid_price__max"]
+
+        if self.request.user.is_authenticated:
+            profile = Account.objects.filter(user=self.request.user).first()
+            is_seller = (profile == product.profile)
+            context["is_seller"] = is_seller
+
+            if is_seller:
+                context["bids"] = (
+                    Bid.objects
+                    .filter(product=product)
+                    .select_related("profile")
+                    .order_by("-bid_price")
+                )
+            context['is_favorited'] = Favorite.objects.filter(
+                profile=profile, product=product
+            ).exists()
+        else:
+            context['is_favorited'] = False
+            context["is_seller"] = False
+
+        return context
 
 # Views requiring account 
-class MiniInstaLoginRequiredMixin(LoginRequiredMixin):
+class ProjectLoginRequiredMixin(LoginRequiredMixin):
     """Require login and provide helper to get logged-in user's Account."""
 
     login_url = 'login'  # redirect here if not authenticated
@@ -37,8 +113,10 @@ class MiniInstaLoginRequiredMixin(LoginRequiredMixin):
     def get_logged_in_profile(self):
         """Return the Profile for the logged-in user."""
 
-        return Account.objects.get(user=self.request.user)
-    
+        return get_object_or_404(Account, user=self.request.user)
+
+
+#----------------Account Views------------------------#
 class CreateAccountView(CreateView):
     ''' View for managing the creation of a new account and user'''
 
@@ -60,7 +138,7 @@ class CreateAccountView(CreateView):
 
         if user_form.is_valid():
             # Create and save the user
-            user = user_form.save
+            user = user_form.save()
 
             # login as the created user
             login(self.request, user, backend='django.contrib.auth.backends.ModelBackend')
@@ -82,14 +160,326 @@ class CreateAccountView(CreateView):
 class LogoutConfirmationView(TemplateView):
     ''' A view for redirecting to the logout confirmation page.'''
 
-    template_name = 'mini_insta/logged_out.html'
+    template_name = 'project/logged_out.html'
 
-class UpdateAccountView(MiniInstaLoginRequiredMixin, UpdateView):
+class UpdateAccountView(ProjectLoginRequiredMixin, UpdateView):
     '''The view class to handle profile updates based on its PK'''
 
     model = Account
     form_class = UpdateAccountForm
-    template_name = "mini_insta/update_profile_form.html"
+    template_name = "project/update_profile_form.html"
 
     def get_object(self, queryset=None):
         return get_object_or_404(Account, user=self.request.user)
+
+class DeleteAccountView(ProjectLoginRequiredMixin, DeleteView):
+    model = Account
+    template_name = "project/delete_account.html"
+
+    def get_object(self):
+        return get_object_or_404(Account, user=self.request.user)
+
+    def get_success_url(self):
+        return reverse('show_accounts')
+
+class MyAccountDetailView(ProjectLoginRequiredMixin, DetailView):
+    """Show the logged-in user's own account at /project/my_account/"""
+
+    model = Account
+    template_name = "project/show_account.html"
+    context_object_name = "account"
+
+    def get_object(self):
+        return self.get_logged_in_profile()
+
+    def get_context_data(self, **kwargs):
+        """Add context to indicate this is the user's own account."""
+        
+        context = super().get_context_data(**kwargs)
+        account = self.get_object()
+        user = self.request.user
+        profile = self.get_object()
+
+        # Since this is always the logged-in user:
+        context['is_own_account'] = True
+        context["sold_products"] = (
+            Product.objects
+            .filter(profile=profile, status="sold")
+            .prefetch_related("images")
+            .annotate(highest_bid=Max("bid__bid_price"))
+        )
+
+        return context
+
+class MyProductsListView(ProjectLoginRequiredMixin, ListView):
+    template_name = "project/dashboard_list.html"
+    context_object_name = "items"
+
+    def get_queryset(self):
+        profile = self.get_logged_in_profile()
+        return (
+            Product.objects
+            .filter(profile=profile)
+            .prefetch_related("bid_set", "bid_set__profile")
+            .annotate(highest_bid=Max("bid__bid_price"))
+        )
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["title"] = "My Products"
+        context["mode"] = "products"
+        return context
+
+
+class MyFavoritesListView(ProjectLoginRequiredMixin, ListView):
+    template_name = "project/dashboard_list.html"
+    context_object_name = "items"
+
+    def get_queryset(self):
+        profile = self.get_logged_in_profile()
+        return (
+            Favorite.objects
+            .filter(profile=profile)
+            .select_related("product")
+            .annotate(highest_bid=Max("product__bid__bid_price"))
+        )
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["title"] = "My Favorites"
+        context["mode"] = "favorites"
+        return context
+
+class MyBidsListView(ProjectLoginRequiredMixin, ListView):
+    """Show all bids made by the logged-in user."""
+
+    model = Bid
+    template_name = "project/my_bids.html"
+    context_object_name = "bids"
+
+    def get_queryset(self):
+        profile = self.get_logged_in_profile()
+        return (
+            Bid.objects
+            .filter(profile=profile)
+            .select_related('product')
+            .annotate(highest_bid=Max('product__bid__bid_price'))
+        )
+
+class MyOrdersListView(ProjectLoginRequiredMixin, ListView):
+    model = Order
+    template_name = "project/my_orders.html"
+    context_object_name = "orders"
+
+    def get_queryset(self):
+        profile = self.get_logged_in_profile()
+        return Order.objects.filter(profile=profile).prefetch_related("products")
+
+
+#----------------Product Views------------------------#
+
+class CreateProductView(ProjectLoginRequiredMixin, CreateView):
+    form_class = CreateProductForm
+    template_name = "project/create_product_form.html"
+
+    def form_valid(self, form):
+        product = form.save(commit=False)
+        product.profile = self.get_logged_in_profile()
+        product.save()
+        self.object = product
+
+        image_files = self.request.FILES.getlist("image_file")
+        for img in image_files:
+            ProductImage.objects.create(
+                product=product,
+                image=img
+            )
+
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse('show_product', kwargs={'pk': self.object.pk})
+
+
+class UpdateProductView(ProjectLoginRequiredMixin, UpdateView):
+    model = Product
+    form_class = UpdateProductForm
+    template_name = "project/update_product_form.html"
+
+
+class DeleteProductView(ProjectLoginRequiredMixin, DeleteView):
+    model = Product
+    template_name = "project/delete_product.html"
+
+    def get_success_url(self):
+        return reverse('show_products')
+
+#----------------Favorite Views------------------------#
+
+class CreateFavoriteView(ProjectLoginRequiredMixin, CreateView):
+    model = Favorite
+    fields = []  # do not allow user input
+    template_name = "project/create_favorite.html"
+
+    def form_valid(self, form):
+        form.instance.profile = self.get_logged_in_profile()
+        form.instance.product = get_object_or_404(Product, pk=self.kwargs['pk'])
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse('show_product', kwargs={'pk': self.object.product.pk})
+
+class DeleteFavoriteView(ProjectLoginRequiredMixin, DeleteView):
+    model = Favorite
+    template_name = "project/delete_favorite.html"
+
+    def get_object(self):
+        profile = self.get_logged_in_profile()
+        product = get_object_or_404(Product, pk=self.kwargs['pk'])
+        return get_object_or_404(Favorite, profile=profile, product=product)
+
+    def get_success_url(self):
+        return reverse('show_product', kwargs={'pk': self.kwargs['pk']})
+
+
+
+#----------------Bid Views------------------------#
+
+class CreateBidView(ProjectLoginRequiredMixin, CreateView):
+    form_class = CreateBidForm
+    template_name = "project/create_bid_form.html"
+
+    def form_valid(self, form):
+        bid = form.save(commit=False)
+        bid.profile = self.get_logged_in_profile()
+        bid.product = get_object_or_404(Product, pk=self.kwargs['pk'])
+        bid.save()
+        self.object = bid
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse('show_product', kwargs={'pk': self.object.product.pk})
+
+
+class AcceptBidView(ProjectLoginRequiredMixin, TemplateView):
+
+    def dispatch(self, request, *args, **kwargs):
+        bid = get_object_or_404(Bid, pk=self.kwargs['pk'])
+        seller_profile = self.get_logged_in_profile()
+        product = bid.product
+
+        #  Only the seller can accept
+        if product.profile != seller_profile:
+            return redirect("show_product", pk=product.pk)
+
+        # BLOCK if a bid was already accepted
+        already_accepted = Bid.objects.filter(
+            product=product,
+            status="accepted"
+        ).exists()
+
+        if already_accepted:
+            # Do nothing if one is already accepted
+            return redirect("show_product", pk=product.pk)
+
+        #  Accept bid
+        bid.status = "accepted"
+        bid.save()
+
+        #  Auto-reject all other bids
+        Bid.objects.filter(
+            product=product
+        ).exclude(pk=bid.pk).update(status="rejected")
+
+        return redirect("show_product", pk=product.pk)
+    
+
+###----------------order abd rating----------------------###
+
+class CheckoutAcceptedBidsView(ProjectLoginRequiredMixin, TemplateView):
+    template_name = "project/checkout.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        profile = self.get_logged_in_profile()
+
+        accepted_bids = Bid.objects.filter(
+            profile=profile,
+            status="accepted",
+            product__status="available"
+        ).select_related("product")
+
+        context["accepted_bids"] = accepted_bids
+        context["total"] = sum(b.bid_price for b in accepted_bids)
+
+        return context
+
+    @transaction.atomic
+    def post(self, request, *args, **kwargs):
+        profile = self.get_logged_in_profile()
+
+        accepted_bids = Bid.objects.filter(
+            profile=profile,
+            status="accepted",
+            product__status="available"
+        ).select_related("product")
+
+        if not accepted_bids.exists():
+            return redirect("my_bids")
+
+        total = sum(b.bid_price for b in accepted_bids)
+
+        #  Create one order
+        order = Order.objects.create(
+            profile=profile,
+            date=date.today(),
+            total=total
+        )
+
+        for bid in accepted_bids:
+            order.products.add(bid.product)
+
+            # mark product sold
+            bid.product.status = "sold"
+            bid.product.save()
+
+        return redirect("my_orders")
+
+class RateProductView(ProjectLoginRequiredMixin, FormView):
+    form_class = RateProductForm
+    template_name = "project/rate_product.html"
+
+    def dispatch(self, request, *args, **kwargs):
+        #  Correctly load product ONCE
+        self.product = get_object_or_404(Product, pk=self.kwargs["pk"])
+        profile = self.get_logged_in_profile()
+
+        #  Only allow rating if user actually CHECKED OUT the product
+        has_order = Order.objects.filter(
+            profile=profile,
+            products=self.product
+        ).exists()
+
+        if not has_order:
+            return redirect("show_product", pk=self.product.pk)
+
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        #  Provide product to template
+        context = super().get_context_data(**kwargs)
+        context["product"] = self.product
+        return context
+
+    def form_valid(self, form):
+        # Save the rating 
+        rating_value = int(form.cleaned_data["rating"])
+        self.product.rating = rating_value
+        self.product.save()
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        # Redirect using self.product (NOT self.object)
+        return reverse("show_product", kwargs={"pk": self.product.pk})
+

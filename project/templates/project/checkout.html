@@ -1,0 +1,33 @@
+{% extends "project/base.html" %}
+{% block content %}
+
+<h2>Checkout</h2>
+
+{% if accepted_bids %}
+
+    {% for bid in accepted_bids %}
+        <div class="card product-card">
+
+            <a href="{% url 'show_product' bid.product.pk %}">
+                <img src="{{ bid.product.image.url }}" class="product-thumb">
+                <h3>{{ bid.product.name }}</h3>
+            </a>
+
+            <p><strong>Seller Expected:</strong> ${{ bid.product.expected_price }}</p>
+            <p><strong>Your Accepted Bid:</strong> ${{ bid.bid_price }}</p>
+
+        </div>
+    {% endfor %}
+
+    <h3>Total to Pay: ${{ total }}</h3>
+
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit"> Confirm Purchase</button>
+    </form>
+
+{% else %}
+    <p>You have no accepted bids to checkout.</p>
+{% endif %}
+
+{% endblock %}

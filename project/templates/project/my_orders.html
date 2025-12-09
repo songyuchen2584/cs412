@@ -1,0 +1,57 @@
+{% extends "project/base.html" %}
+{% block content %}
+
+<h2>My Orders</h2>
+
+{% for order in orders %}
+    <div class="card order-card">
+
+        <p><strong>Order Date:</strong> {{ order.date }}</p>
+
+        {% for product in order.products.all %}
+            <div class="product-row">
+
+                <a href="{% url 'show_product' product.pk %}">
+                    <img src="{{ product.image.url }}" class="product-thumb">
+                    <strong>{{ product.name }}</strong>
+                </a>
+
+                <!-- Get the price paid for product-->
+                {% with product.bid_set.all as bids %}
+                    {% for bid in bids %}
+                        {% if bid.profile == order.profile and bid.status == "accepted" %}
+                            <p><strong>Price Paid:</strong> ${{ bid.bid_price }}</p>
+                        {% endif %}
+                    {% endfor %}
+                {% endwith %}
+
+                <p><strong>Seller Expected:</strong> ${{ product.expected_price }}</p>
+
+            </div>
+
+
+
+            {% if product.rating %}
+                <p><strong>Your Rating:</strong> {{ product.rating }} </p>
+
+                <a href="{% url 'rate_product' product.pk %}">
+                    Modify Rating
+                </a>
+            {% else %}
+                <a href="{% url 'rate_product' product.pk %}">
+                    Rate This Product
+                </a>
+            {% endif %}
+
+
+
+
+
+        {% endfor %}
+
+    </div>
+{% empty %}
+    <p>You have not placed any orders yet.</p>
+{% endfor %}
+
+{% endblock %}

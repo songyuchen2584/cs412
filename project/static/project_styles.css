@@ -1,8 +1,301 @@
-.account-card {
-    background: white;
+/* =========================
+   THEME VARIABLES
+========================= */
+:root {
+    --bg-cream: #f7f3ee;
+    --bg-card: #ffffff;
+    --accent: #c07a5b;
+    --accent-soft: #e7c2b3;
+    --text-main: #3b2f2f;
+    --text-muted: #7a6f6a;
+    --border-soft: #e6ddd5;
+    --shadow-soft: 0 4px 10px rgba(0,0,0,0.06);
+    --radius: 12px;
 }
 
-.profile_picture {
-    max-width: 300px;
+/* =========================
+   GLOBAL RESET
+========================= */
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: "Segoe UI", sans-serif;
+    background: var(--bg-cream);
+    color: var(--text-main);
+}
+
+/* =========================
+   HEADER + NAVBAR
+========================= */
+header {
+    background: var(--accent);
+    color: white;
+    padding: 18px;
+    font-size: 26px;
+    font-weight: bold;
+    text-align: center;
+}
+
+.navbar {
+    display: flex;
+    gap: 18px;
+    flex-wrap: wrap;
+    align-items: center;
+    padding: 14px 24px;
+    background: var(--bg-card);
+    border-bottom: 1px solid var(--border-soft);
+}
+
+.navbar li {
+    list-style: none;
+}
+
+.navbar a,
+.navbar button {
+    text-decoration: none;
+    color: var(--text-main);
+    font-weight: 600;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+.navbar a:hover {
+    color: var(--accent);
+}
+
+/* =========================
+   PAGE CONTAINER
+========================= */
+.container {
+    max-width: 1200px;
+    margin: 30px auto;
+    padding: 0 20px;
+}
+
+/* =========================
+   FOOTER
+========================= */
+footer {
+    text-align: center;
+    padding: 24px;
+    color: var(--text-muted);
+}
+
+/* =========================
+   CARD SYSTEM (REUSED EVERYWHERE)
+========================= */
+.card {
+    background: var(--bg-card);
+    border-radius: var(--radius);
+    padding: 18px;
+    margin-bottom: 22px;
+    box-shadow: var(--shadow-soft);
+    border: 1px solid var(--border-soft);
+    transition: transform 0.15s ease;
+}
+
+.card:hover {
+    transform: translateY(-3px);
+}
+
+.product-card {
+    width: 100%;
+}
+
+.order-card {
+    background: #faf7f2;
+}
+
+.user-card {
+    display: inline-block;
+    margin: 12px;
+    width: 180px;
+    text-align: center;
+}
+
+/* =========================
+   PRODUCT GRID + ROWS
+========================= */
+.sold-products-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 20px;
+}
+
+.product-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 12px;
+}
+
+/* =========================
+   IMAGE SIZING (UNIFORM)
+========================= */
+
+/* Product thumbnails (marketplace, bids, orders) */
+.product-thumb {
+    width: 220px;
+    height: 220px;
     object-fit: cover;
+    border-radius: 10px;
+    border: 1px solid var(--border-soft);
+}
+
+/* Larger detail images */
+.product-image {
+    width: 320px;
+    height: 320px;
+    object-fit: cover;
+    border-radius: 12px;
+    border: 1px solid var(--border-soft);
+}
+
+/* Circular avatars */
+.avatar {
+    width: 64px;
+    height: 64px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 2px solid var(--accent);
+}
+
+/* Main profile picture */
+.profile-image {
+    width: 160px;
+    height: 160px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 3px solid var(--accent);
+}
+
+/* =========================
+   PRODUCT DETAIL
+========================= */
+.product-detail {
+    background: var(--bg-card);
+    padding: 24px;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-soft);
+}
+
+.image-gallery {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+}
+
+/* =========================
+   CLICKABLE USER BOX (GLOBAL)
+========================= */
+.user-card a,
+.seller-info a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    text-decoration: none;
+    color: var(--text-main);
+}
+
+.seller-info {
+    max-width: 280px;
+    margin-bottom: 24px;
+}
+
+/* =========================
+   BIDS
+========================= */
+.bid-row {
+    padding: 10px;
+    background: #faf7f2;
+    border-radius: 8px;
+    margin-bottom: 8px;
+}
+
+/* =========================
+   BUTTONS
+========================= */
+button,
+.checkout-btn,
+a[href*="create"],
+a[href*="update"],
+a[href*="delete"],
+a[href*="checkout"] {
+    background: var(--accent);
+    color: white;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 700;
+    text-decoration: none;
+    display: inline-block;
+    margin-top: 8px;
+}
+
+button:hover,
+.checkout-btn:hover,
+a[href*="create"]:hover,
+a[href*="update"]:hover,
+a[href*="delete"]:hover {
+    opacity: 0.9;
+}
+
+/* =========================
+   FORMS
+========================= */
+form {
+    background: var(--bg-card);
+    padding: 22px;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-soft);
+    max-width: 600px;
+}
+
+form input,
+form select,
+form textarea {
+    width: 100%;
+    padding: 10px;
+    margin-top: 6px;
+    margin-bottom: 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border-soft);
+}
+
+/* =========================
+   HEADINGS
+========================= */
+h1, h2, h3, h4 {
+    color: var(--text-main);
+}
+
+h2 {
+    border-bottom: 3px solid var(--accent-soft);
+    padding-bottom: 6px;
+    margin-bottom: 16px;
+}
+
+/* =========================
+   STATUS TEXT
+========================= */
+strong {
+    color: var(--accent);
+}
+
+.no-image {
+    width: 220px;
+    height: 220px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #eee;
+    color: #888;
+    border-radius: 10px;
 }

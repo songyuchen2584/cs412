@@ -1,0 +1,38 @@
+{% extends "project/base.html" %}
+{% block content %}
+
+<h2>Marketplace</h2>
+
+<form method="get">
+    <input type="text" name="query" placeholder="Search">
+    <input type="text" name="category" placeholder="Category">
+    <button type="submit">Search</button>
+</form>
+
+{% for product in products %}
+    <div class="card product-card">
+
+        <a href="{% url 'show_product' product.pk %}">
+
+            {% if product.images.first %}
+                <img src="{{ product.images.first.image.url }}" class="product-thumb">
+            {% elif product.image %}
+                <img src="{{ product.image.url }}" class="product-thumb">
+            {% else %}
+                <div class="no-image">No Image</div>
+            {% endif %}
+            <h3>{{ product.name }}</h3>
+            <p><strong>Expected:</strong> ${{ product.expected_price }}</p>
+        </a>
+    </div>
+            {% if product.highest_bid %}
+                <p><strong>Highest Bid:</strong> ${{ product.highest_bid }}</p>
+            {% else %}
+                <p><strong>No bids yet</strong></p>
+            {% endif %}
+
+{% empty %}
+    <p>No products found.</p>
+{% endfor %}
+
+{% endblock %}

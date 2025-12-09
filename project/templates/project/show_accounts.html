@@ -9,9 +9,14 @@ Description: HTML that extends the base HTML for the show_accounts page of the p
 <h1>All Accounts</h1>
 
   {% for account in accounts %}
-    <div>
-        {{account.username}}
-        <img src="{{ account.profile_picture.url }}" alt="No profile picture available.">
+    <div class="card user-card">
+        <a href="{% url 'show_account' account.pk %}">
+            {% if account.profile_picture %}
+                <img src="{{ account.profile_picture.url }}" class="avatar">
+            {% endif %}
+
+            <strong>{{ account.username }}</strong>
+        </a>
     </div>
   {% empty %}
     <p>No accounts created.</p>

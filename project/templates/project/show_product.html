@@ -1,0 +1,98 @@
+{% extends "project/base.html" %}
+{% block content %}
+
+<div class="product-detail">
+
+    <div class="image-gallery">
+    {% if product.image %}
+        <img src="{{product.image.url}}" class="product-thumb">
+    {% endif %}
+    {% for img in product.images.all %}
+        <img src="{{ img.image.url }}" class="product-image">
+    {% endfor %}
+    </div>
+    <h2>{{ product.name }}</h2>
+
+    <p><strong>Price:</strong> ${{ product.expected_price }}</p>
+    <p><strong>Status:</strong> {{ product.status }}</p>
+    <p><strong>Rating:</strong> {{ product.rating }}</p>
+
+    <p>{{ product.description }}</p>
+
+    
+    {% if highest_bid %}
+        <p><strong> Current Highest Bid:</strong> ${{ highest_bid }}</p>
+    {% else %}
+        <p><strong> Current Highest Bid:</strong> No bids yet</p>
+    {% endif %}
+
+</div>
+<h2>Merchat Information</h2>
+{% with seller=product.profile %}
+<div class="seller-info card">
+
+    <a href="{% url 'show_account' seller.pk %}">
+        {% if seller.profile_picture %}
+            <img src="{{ seller.profile_picture.url }}" class="avatar">
+        {% endif %}
+        <span class="seller-name">{{ seller.username }}</span>
+    </a>
+
+</div>
+{% endwith %}
+
+{% if user.is_authenticated %}
+
+    {% if is_favorited %}
+        <form method="post" action="{% url 'delete_favorite' product.pk %}">
+            {% csrf_token %}
+            <button type="submit">Unfavorite</button>
+        </form>
+    {% else %}
+        <form method="post" action="{% url 'create_favorite' product.pk %}">
+            {% csrf_token %}
+            <button type="submit">Favorite</button>
+        </form>
+    {% endif %}
+
+    <a href="{% url 'create_bid' product.pk %}">Place Bid</a>
+
+{% endif %}
+
+{% if product.profile.user == user %}
+    <a href="{% url 'update_product' product.pk %}">Edit</a>
+    <a href="{% url 'delete_product' product.pk %}">Delete</a>
+{% endif %}
+
+<h3>Bids</h3>
+
+{% if is_seller %}
+    <hr>
+    <h3>All Bids on This Product</h3>
+
+    {% for bid in bids %}
+        <div class="bid-row">
+            <p>
+                <strong>Bidder:</strong>
+                <a href="{% url 'show_account' bid.profile.pk %}">
+                    {{ bid.profile.username }}
+                </a>
+            </p>
+
+            <p><strong>Bid:</strong> ${{ bid.bid_price }}</p>
+            <p><strong>Status:</strong> {{ bid.status }}</p>
+
+            {% if bid.status != "accepted" %}
+                <a href="{% url 'accept_bid' bid.pk %}" class="btn btn-success">
+                    Accept This Bid
+                </a>
+            {% endif %}
+
+            <hr>
+        </div>
+    {% empty %}
+        <p>No bids yet.</p>
+    {% endfor %}
+{% endif %}
+
+{% endblock %}

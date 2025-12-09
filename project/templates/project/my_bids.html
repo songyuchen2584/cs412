@@ -1,0 +1,54 @@
+{% extends "project/base.html" %}
+{% block content %}
+
+<h2>My Bids</h2>
+
+{% for bid in bids %}
+    <div class="card product-card">
+        <h3>
+            <a href="{% url 'show_product' bid.product.pk %}">
+                {% if bid.product.images.first %}
+                    <img src="{{ bid.product.images.first.image.url }}" class="product-thumb">
+                {% elif bid.product.image %}
+                    <img src="{{ bid.product.image.url }}" class="product-thumb">
+                {% endif %}
+                <h3>{{ bid.product.name }}</h3>
+            </a>
+        </h3>
+
+        <p>Your Bid: ${{ bid.bid_price }}</p>
+        <p>Item Status: {{ bid.product.status }}</p>
+
+        {% if bid.highest_bid %}
+            <p><strong>Current Highest Bid:</strong> ${{ bid.highest_bid }}</p>
+        {% else %}
+            <p><strong>Current Highest Bid:</strong> No bids yet</p>
+        {% endif %}
+
+
+        {% if bid.status == "accepted" %}
+            <p><strong> Accepted</strong></p>
+            <a href="{% url 'checkout' %}" class="checkout-btn">
+                 Checkout All Accepted Items
+            </a>
+
+        {% elif bid.status == "rejected" %}
+            <p><strong> Rejected</strong></p>
+        {% else %}
+            <p><strong> Pending</strong></p>
+        {% endif %}
+
+        {% if bid.highest_bid %}
+            {% if bid.bid_price == bid.highest_bid %}
+                <p style="color: green;"><strong> You are currently winning</strong></p>
+            {% else %}
+                <p style="color: red;"><strong> You have been outbid</strong></p>
+        {% endif %}
+{% endif %}
+    </div>
+
+{% empty %}
+    <p>You have not placed any bids yet.</p>
+{% endfor %}
+
+{% endblock %}
