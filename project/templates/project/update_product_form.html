@@ -1,3 +1,8 @@
+<!-- 
+File: create_account_form.html
+Author: Song Yu Chen (songyu@bu.edu) 12/04/2025
+Description: HTML that extends the base HTML for the update product form of the project app.
+-->
 {% extends "project/base.html" %}
 {% block content %}
 
@@ -6,6 +11,24 @@
 <form method="post" enctype="multipart/form-data">
     {% csrf_token %}
     {{ form.as_p }}
+
+    <h3>Existing Images</h3>
+
+    <div class="image-gallery">
+        {% for img in object.images.all %}
+            <div>
+                <img src="{{ img.image.url }}" class="product-thumb">
+                <label>
+                    <input type="checkbox" name="remove_images" value="{{ img.pk }}">
+                    Remove
+                </label>
+            </div>
+        {% empty %}
+            <p>No images yet.</p>
+        {% endfor %}
+    </div>
+
+    <hr>
     <button type="submit">Update</button>
 </form>
 

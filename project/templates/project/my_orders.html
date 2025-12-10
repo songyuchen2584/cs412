@@ -1,3 +1,8 @@
+<!-- 
+File: create_account_form.html
+Author: Song Yu Chen (songyu@bu.edu) 12/07/2025
+Description: HTML that extends the base HTML for the my orders page of the project app.
+-->
 {% extends "project/base.html" %}
 {% block content %}
 
@@ -12,8 +17,16 @@
             <div class="product-row">
 
                 <a href="{% url 'show_product' product.pk %}">
-                    <img src="{{ product.image.url }}" class="product-thumb">
-                    <strong>{{ product.name }}</strong>
+                    {% with product.images.first as img %}
+                        {% if img %}
+                            <img src="{{ img.image.url }}" class="product-thumb">
+                        {% elif product.image %}
+                            <img src="{{ product.image.url }}" class="product-thumb">
+                        {% else %}
+                            <div class="no-image">No Image</div>
+                        {% endif %}
+                    {% endwith %}
+                    <h3><strong>{{ product.name }}</strong></h3>
                 </a>
 
                 <!-- Get the price paid for product-->

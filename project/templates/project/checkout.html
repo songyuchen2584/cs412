@@ -1,33 +1,45 @@
+<!-- 
+File: create_account_form.html
+Author: Song Yu Chen (songyu@bu.edu) 12/07/2025
+Description: HTML that extends the base HTML for the checkout page of the project app.
+-->
 {% extends "project/base.html" %}
 {% block content %}
 
-<h2>Checkout</h2>
+<h2>Checkout Accepted Items</h2>
 
-{% if accepted_bids %}
+<form method="post">
+    {% csrf_token %}
 
     {% for bid in accepted_bids %}
         <div class="card product-card">
 
-            <a href="{% url 'show_product' bid.product.pk %}">
-                <img src="{{ bid.product.image.url }}" class="product-thumb">
-                <h3>{{ bid.product.name }}</h3>
-            </a>
+            <label>
+                <input type="checkbox" name="selected_bids" value="{{ bid.pk }}">
+                
+                {% if bid.product.images.first %}
+                    <img src="{{ bid.product.images.first.image.url }}" class="product-thumb">
+                {% elif bid.product.image %}
+                    <img src="{{ bid.product.image.url }}" class="product-thumb">
+                {% endif %}
 
-            <p><strong>Seller Expected:</strong> ${{ bid.product.expected_price }}</p>
-            <p><strong>Your Accepted Bid:</strong> ${{ bid.bid_price }}</p>
+                <strong>{{ bid.product.name }}</strong>
+            </label>
+
+            <p>Seller Price: ${{ bid.product.expected_price }}</p>
+            <p>Your Accepted Bid: <strong>${{ bid.bid_price }}</strong></p>
 
         </div>
+    {% empty %}
+        <p>No accepted items available for checkout.</p>
     {% endfor %}
 
-    <h3>Total to Pay: ${{ total }}</h3>
+    <hr>
 
-    <form method="post">
-        {% csrf_token %}
-        <button type="submit"> Confirm Purchase</button>
-    </form>
+    <button type="submit" class="checkout-btn">
+        Checkout Selected Items
+    </button>
 
-{% else %}
-    <p>You have no accepted bids to checkout.</p>
-{% endif %}
+</form>
 
 {% endblock %}

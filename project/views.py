@@ -122,35 +122,35 @@ class CreateAccountView(CreateView):
 
     template_name = "project/create_account_form.html"
     form_class = CreateAccountForm
-    model = User
+    model = Account
 
     def get_context_data(self, **kwargs):
-        ''' Create user form '''
         context = super().get_context_data(**kwargs)
-        context['user_form'] = UserCreationForm()
-        return context
-    
-    def form_valid (self, form):
-        ''' Creates the associated user and automatically login as the user'''
-
-        # Construct the user creation form POST
-        user_form = UserCreationForm(self.request.POST)
-
-        if user_form.is_valid():
-            # Create and save the user
-            user = user_form.save()
-
-            # login as the created user
-            login(self.request, user, backend='django.contrib.auth.backends.ModelBackend')
-
-            # connect the user to the Account
-            form.instance.user = user
-
-            # leave rest to superclass
-            return super().form_valid(form)
+        # If user_form is passed (e.g., from post), keep it; otherwise create a new one
+        if 'user_form' in context:
+            # already present via kwargs passed to get_context_data
+            pass
         else:
-            # render the forms with form errors
-            return self.render_to_response(self.get_context_data(form=form, user_form=user_form))
+            context['user_form'] = kwargs.get('user_form', UserCreationForm())
+        return context
+
+    def post(self, request, *args, **kwargs):
+        self.object = None
+        account_form = self.get_form()
+        user_form = UserCreationForm(request.POST)
+
+        if account_form.is_valid() and user_form.is_valid():
+            user = user_form.save()
+            login(self.request, user, backend='django.contrib.auth.backends.ModelBackend')
+            account = account_form.save(commit=False)
+            account.user = user
+            account.save()
+            self.object = account
+            return redirect(self.get_success_url())
+
+        # Re-render with bound forms and errors
+        context = self.get_context_data(form=account_form, user_form=user_form)
+        return self.render_to_response(context)
         
     def get_success_url(self):
         ''' After creating Account, got to Account detail page'''
@@ -306,10 +306,54 @@ class UpdateProductView(ProjectLoginRequiredMixin, UpdateView):
     form_class = UpdateProductForm
     template_name = "project/update_product_form.html"
 
+    def dispatch(self, request, *args, **kwargs):
+        product = self.get_object()
+
+        #  Do not allow editing sold items
+        if product.status == "sold":
+            return redirect("show_product", pk=product.pk)
+        # Check to make sure seller is the only one that can edit
+        if product.profile != self.get_logged_in_profile():
+            return redirect("show_product", pk=product.pk)
+
+        return super().dispatch(request, *args, **kwargs)
+
+    
+    def form_valid(self, form):
+        response = super().form_valid(form)
+
+        remove_ids = self.request.POST.getlist("remove_images")
+        if remove_ids:
+            ProductImage.objects.filter(
+                id__in=remove_ids,
+                product=self.object
+            ).delete()
+
+        for img in self.request.FILES.getlist("image_file"):
+            ProductImage.objects.create(product=self.object, image=img)
+
+        return response
+
+    def get_success_url(self):
+        return reverse('show_product', kwargs={'pk': self.object.pk})
+
 
 class DeleteProductView(ProjectLoginRequiredMixin, DeleteView):
     model = Product
     template_name = "project/delete_product.html"
+
+    def dispatch(self, request, *args, **kwargs):
+        product = self.get_object()
+
+        # Do not allow deleting sold items
+        if product.status == "sold":
+            return redirect("show_product", pk=product.pk)
+        # Check if the seller is the one trying to delete
+        if product.profile != self.get_logged_in_profile():
+            return redirect("show_product", pk=product.pk)
+
+        return super().dispatch(request, *args, **kwargs)
+
 
     def get_success_url(self):
         return reverse('show_products')
@@ -348,6 +392,15 @@ class DeleteFavoriteView(ProjectLoginRequiredMixin, DeleteView):
 class CreateBidView(ProjectLoginRequiredMixin, CreateView):
     form_class = CreateBidForm
     template_name = "project/create_bid_form.html"
+
+    def dispatch(self, request, *args, **kwargs):
+        product = get_object_or_404(Product, pk=self.kwargs['pk'])
+
+        # Block new bids if deal is set, prevent user from wrapping around through http
+        if product.status != "available":
+            return redirect("show_product", pk=product.pk)
+
+        return super().dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):
         bid = form.save(commit=False)
@@ -419,28 +472,33 @@ class CheckoutAcceptedBidsView(ProjectLoginRequiredMixin, TemplateView):
     def post(self, request, *args, **kwargs):
         profile = self.get_logged_in_profile()
 
-        accepted_bids = Bid.objects.filter(
+        selected_ids = request.POST.getlist("selected_bids")
+
+        if not selected_ids:
+            return redirect("checkout")  # nothing selected
+
+        selected_bids = Bid.objects.filter(
+            pk__in=selected_ids,
             profile=profile,
             status="accepted",
             product__status="available"
         ).select_related("product")
 
-        if not accepted_bids.exists():
+        if not selected_bids.exists():
             return redirect("my_bids")
 
-        total = sum(b.bid_price for b in accepted_bids)
+        total = sum(b.bid_price for b in selected_bids)
 
-        #  Create one order
         order = Order.objects.create(
             profile=profile,
             date=date.today(),
             total=total
         )
 
-        for bid in accepted_bids:
+        for bid in selected_bids:
             order.products.add(bid.product)
 
-            # mark product sold
+            # Mark product sold
             bid.product.status = "sold"
             bid.product.save()
 

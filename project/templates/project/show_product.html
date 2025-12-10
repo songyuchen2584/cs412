@@ -1,3 +1,8 @@
+<!-- 
+File: create_account_form.html
+Author: Song Yu Chen (songyu@bu.edu) 12/04/2025
+Description: HTML that extends the base HTML for the show product page of the project app.
+-->
 {% extends "project/base.html" %}
 {% block content %}
 
@@ -54,19 +59,37 @@
             <button type="submit">Favorite</button>
         </form>
     {% endif %}
+    
+    <!-- Hide bid button after deal is set-->
 
-    <a href="{% url 'create_bid' product.pk %}">Place Bid</a>
+    {% if product.status == "available" %}
+    <a href="{% url 'create_bid' product.pk %}" class="checkout-btn">
+        Place a Bid
+        </a>
+    {% elif product.status == "pending" %}
+        <p><strong> A deal has already been accepted for this item.</strong></p>
+    {% elif product.status == "sold" %}
+        <p><strong> This item has been sold.</strong></p>
+    {% endif %}
 
 {% endif %}
 
-{% if product.profile.user == user %}
-    <a href="{% url 'update_product' product.pk %}">Edit</a>
-    <a href="{% url 'delete_product' product.pk %}">Delete</a>
+<!-- 
+Ensure that the seller is the only one that can edit and delete. 
+Can not edit or delete after product has been sold. 
+-->
+{% if request.user.is_authenticated and product.profile.user == request.user %}
+    {% if product.status != "sold" %}
+        <a href="{% url 'update_product' product.pk %}" class="btn">Update</a>
+        <a href="{% url 'delete_product' product.pk %}" class="btn">Delete</a>
+    {% else %}
+        <p><strong>This listing has been sold and can no longer be edited.</strong></p>
+    {% endif %}
 {% endif %}
 
-<h3>Bids</h3>
 
 {% if is_seller %}
+<h3>Bids</h3>
     <hr>
     <h3>All Bids on This Product</h3>
 

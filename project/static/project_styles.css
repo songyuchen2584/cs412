@@ -67,6 +67,41 @@ header {
     color: var(--accent);
 }
 
+.nav-user-right {
+    margin-left: auto;  
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.nav-username {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-muted);
+}
+
+.logout-btn {
+    background: linear-gradient(135deg, #b23b3b, #8a1f1f);
+    border-radius: 999px;        
+    padding: 8px 18px;            
+    font-size: 0.85rem;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+}
+
+.logout-btn:hover {
+    background: linear-gradient(135deg, #d94a4a, #b22c2c);
+    transform: scale(1.05);
+}
+
+.nav-user-right form {
+    background: none;
+    padding: 0;
+    box-shadow: none;
+    border-radius: 0;
+    max-width: unset;
+}
+
 /* =========================
    PAGE CONTAINER
 ========================= */
@@ -136,8 +171,6 @@ footer {
 /* =========================
    IMAGE SIZING (UNIFORM)
 ========================= */
-
-/* Product thumbnails (marketplace, bids, orders) */
 .product-thumb {
     width: 220px;
     height: 220px;
@@ -146,7 +179,6 @@ footer {
     border: 1px solid var(--border-soft);
 }
 
-/* Larger detail images */
 .product-image {
     width: 320px;
     height: 320px;
@@ -155,7 +187,6 @@ footer {
     border: 1px solid var(--border-soft);
 }
 
-/* Circular avatars */
 .avatar {
     width: 64px;
     height: 64px;
@@ -164,7 +195,6 @@ footer {
     border: 2px solid var(--accent);
 }
 
-/* Main profile picture */
 .profile-image {
     width: 160px;
     height: 160px;
@@ -191,7 +221,7 @@ footer {
 }
 
 /* =========================
-   CLICKABLE USER BOX (GLOBAL)
+   CLICKABLE USER BOX
 ========================= */
 .user-card a,
 .seller-info a {
@@ -243,7 +273,8 @@ button:hover,
 .checkout-btn:hover,
 a[href*="create"]:hover,
 a[href*="update"]:hover,
-a[href*="delete"]:hover {
+a[href*="delete"]:hover,
+a[href*="checkout"]:hover {
     opacity: 0.9;
 }
 

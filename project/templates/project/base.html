@@ -23,18 +23,22 @@ Description: The base HTML for the project app.
                 <li><a href="{% url 'my_favorites' %}">My Favorites</a></li>
                 <li><a href="{% url 'my_bids' %}">My Bids</a></li>
                 <li><a href="{% url 'my_orders' %}">My Orders</a></li>
-
                 <li><a href="{% url 'create_product' %}">+ Create Listing</a></li>
-                Logged in as: {{request.user}}
-                
-                <form method="post" action="{% url 'logout' %}" >
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-link" >
-                        Logout
-                    </button>
-                </form>
             {% else %}
                 <li><a href="{% url 'login' %}">Login</a></li>
+            {% endif %}
+
+            {% if user.is_authenticated %}
+                <div class="nav-user-right">
+                    <span class="nav-username">
+                        Logged in as: {{ request.user }}
+                    </span>
+
+                    <form method="post" action="{% url 'logout' %}">
+                        {% csrf_token %}
+                        <button type="submit" class="checkout-btn logout-btn">Logout</button>
+                    </form>
+                </div>
             {% endif %}
         </nav>
         <!-- specific content-->

@@ -1,3 +1,9 @@
+<!-- 
+File: create_account_form.html
+Author: Song Yu Chen (songyu@bu.edu) 12/07/2025
+Description: HTML that extends the base HTML for the my bids page of the project app.
+-->
+
 {% extends "project/base.html" %}
 {% block content %}
 
@@ -26,12 +32,14 @@
         {% endif %}
 
 
-        {% if bid.status == "accepted" %}
+
+        {% if bid.status == "accepted" and bid.product.status == "sold" %}
+            <p><strong> Already Checked Out</strong></p>
+        {% elif bid.status == "accepted" %}
             <p><strong> Accepted</strong></p>
             <a href="{% url 'checkout' %}" class="checkout-btn">
-                 Checkout All Accepted Items
+                 Checkout Items
             </a>
-
         {% elif bid.status == "rejected" %}
             <p><strong> Rejected</strong></p>
         {% else %}

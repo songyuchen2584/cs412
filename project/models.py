@@ -15,6 +15,9 @@ class Account(models.Model):
         '''Return a readable string for this account.'''
 
         return f"{self.username} for the user {self.user}"
+    
+    def get_absolute_url(self):
+        return reverse("my_account")
 
 
 class Product(models.Model):
@@ -23,7 +26,7 @@ class Product(models.Model):
     profile = models.ForeignKey(Account, on_delete=models.CASCADE)
     name = models.CharField(max_length=50)
     description = models.TextField(max_length=1000)
-    image = models.ImageField()
+    image = models.ImageField(blank=True)
     category = models.CharField(max_length=20)
     timestamp = models.DateTimeField(auto_now=True)
     expected_price = models.DecimalField(max_digits=20, decimal_places=2) # 2 decimal places for price

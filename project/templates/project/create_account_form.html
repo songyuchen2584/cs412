@@ -6,18 +6,34 @@ Description: HTML that extends the base HTML for the create account form of the 
 {% extends 'project/base.html' %}
 
 {% block content %}
-<h1> Register for a new Account</h1>
+<h2>Create Account</h2>
 
-<form action ="{% url 'create_account'%}" method="POST">
+<form method="post" enctype="multipart/form-data">
     {% csrf_token %}
-    
-    <h3>User Info</h3>
-    {{ user_form.as_p }}
 
-    <h3>Profile Info</h3>
+    <h3>Login Information</h3>
+    {{ user_form.non_field_errors }}
+    <div>
+        {{ user_form.username.label_tag }}
+        {{ user_form.username }}
+        {{ user_form.username.errors }}
+    </div>
+    <div>
+        {{ user_form.password1.label_tag }}
+        {{ user_form.password1 }}
+        {{ user_form.password1.errors }}
+    </div>
+    <div>
+        {{ user_form.password2.label_tag }}
+        {{ user_form.password2 }}
+        {{ user_form.password2.errors }}
+    </div>
+
+    <h3>Profile Information</h3>
+    {{ form.non_field_errors }}
     {{ form.as_p }}
 
-    <button type="submit">Create Account</button>
+    <button type="submit" class="checkout-btn">Create Account</button>
 </form>
 
 

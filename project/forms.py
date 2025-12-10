@@ -62,11 +62,16 @@ class CreateProductForm(forms.ModelForm):
 class UpdateProductForm(forms.ModelForm):
     '''Form to handle the update of product information'''
 
+    image_file = MultiFileField(
+        widget=MultiFileInput(),
+        required=False  
+    )
+
     class Meta:
         ''' Associate form with the Product model from the database'''
         
         model = Product
-        fields = ['name', 'description', 'image', 'category', 'expected_price', 'status']
+        fields = ['name', 'description', 'category', 'expected_price', 'status']
 
 class CreateBidForm(forms.ModelForm):
     '''Form to handle bid creation'''
