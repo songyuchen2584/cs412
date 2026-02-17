@@ -150,3 +150,6 @@ if socket.gethostname() == CS_DEPLOYMENT_HOSTNAME:
     STATIC_URL = '/songyu/static/'
     MEDIA_URL = '/songyu/media/'
 
+STRIPE_SECRET_KEY = "your_secret_key"
+STRIPE_PUBLISHABLE_KEY = "your_publishable_secret"
+STRIPE_WEBHOOK_SECRET = "yout_webhook_secret"

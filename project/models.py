@@ -79,6 +79,11 @@ class Order(models.Model):
     total = models.DecimalField(max_digits=20, decimal_places=2)
     products = models.ManyToManyField(Product)
 
+    # Stripe
+    stripe_session_id = models.CharField(max_length=255, blank=True, null=True, unique=True)
+    stripe_payment_intent = models.CharField(max_length=255, blank=True, null=True)
+    paid = models.BooleanField(default=False)
+
     def __str__(self):
         '''Return a readable string for this account.'''
 

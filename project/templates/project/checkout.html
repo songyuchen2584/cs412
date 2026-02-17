@@ -8,7 +8,7 @@ Description: HTML that extends the base HTML for the checkout page of the projec
 
 <h2>Checkout Accepted Items</h2>
 
-<form method="post">
+<form method="post" action="{% url 'stripe_create_session' %}">
     {% csrf_token %}
 
     {% for bid in accepted_bids %}

@@ -13,6 +13,13 @@ from django.db.models import Max
 from django.db import transaction
 from django.db.models import Q
 
+import stripe
+from django.conf import settings
+from django.views import View
+from django.http import HttpResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
+
 
 # Create your views here.
 
@@ -447,7 +454,7 @@ class AcceptBidView(ProjectLoginRequiredMixin, TemplateView):
         return redirect("show_product", pk=product.pk)
     
 
-###----------------order abd rating----------------------###
+###----------------order and rating----------------------###
 
 class CheckoutAcceptedBidsView(ProjectLoginRequiredMixin, TemplateView):
     template_name = "project/checkout.html"
@@ -503,6 +510,127 @@ class CheckoutAcceptedBidsView(ProjectLoginRequiredMixin, TemplateView):
             bid.product.save()
 
         return redirect("my_orders")
+
+class CreateCheckoutSessionView(ProjectLoginRequiredMixin, View):
+    def post(self, request, *args, **kwargs):
+        stripe.api_key = settings.STRIPE_SECRET_KEY
+        profile = self.get_logged_in_profile()
+
+        selected_ids = request.POST.getlist("selected_bids")
+        if not selected_ids:
+            return redirect("checkout")
+
+        selected_bids = (
+            Bid.objects
+            .filter(
+                pk__in=selected_ids,
+                profile=profile,
+                status="accepted",
+                product__status="available",
+            )
+            .select_related("product")
+        )
+
+        if not selected_bids.exists():
+            return redirect("checkout")
+
+        line_items = []
+        for b in selected_bids:
+            unit_amount = int(b.bid_price * 100)  # dollars -> cents
+            line_items.append({
+                "price_data": {
+                    "currency": "usd",
+                    "product_data": {"name": b.product.name},
+                    "unit_amount": unit_amount,
+                },
+                "quantity": 1,
+            })
+
+        session = stripe.checkout.Session.create(
+            mode="payment",
+            payment_method_types=["card"],
+            line_items=line_items,
+            success_url=request.build_absolute_uri(reverse("stripe_success")) + "?session_id={CHECKOUT_SESSION_ID}",
+            cancel_url=request.build_absolute_uri(reverse("stripe_cancel")),
+            metadata={
+                "profile_id": str(profile.id),
+                "bid_ids": ",".join(str(b.pk) for b in selected_bids),
+            },
+        )
+
+        return redirect(session.url, code=303)
+
+
+class StripeSuccessView(ProjectLoginRequiredMixin, TemplateView):
+    template_name = "project/stripe_success.html"
+
+
+class StripeCancelView(ProjectLoginRequiredMixin, TemplateView):
+    template_name = "project/stripe_cancel.html"
+
+
+@method_decorator(csrf_exempt, name="dispatch")
+class StripeWebhookView(View):
+    def post(self, request, *args, **kwargs):
+        stripe.api_key = settings.STRIPE_SECRET_KEY
+        payload = request.body
+        sig_header = request.META.get("HTTP_STRIPE_SIGNATURE", "")
+
+        try:
+            event = stripe.Webhook.construct_event(
+                payload=payload,
+                sig_header=sig_header,
+                secret=settings.STRIPE_WEBHOOK_SECRET,
+            )
+        except Exception:
+            return HttpResponse(status=400)
+
+        if event["type"] == "checkout.session.completed":
+            session = event["data"]["object"]
+            session_id = session["id"]
+
+            if Order.objects.filter(stripe_session_id=session_id).exists():
+                return HttpResponse(status=200)
+
+            profile_id = session["metadata"].get("profile_id")
+            bid_ids_raw = session["metadata"].get("bid_ids", "")
+            bid_ids = [int(x) for x in bid_ids_raw.split(",") if x.strip().isdigit()]
+
+            with transaction.atomic():
+                profile = Account.objects.select_for_update().get(pk=profile_id)
+
+                bids = (
+                    Bid.objects
+                    .select_for_update()
+                    .filter(
+                        pk__in=bid_ids,
+                        profile=profile,
+                        status="accepted",
+                        product__status="available",
+                    )
+                    .select_related("product")
+                )
+
+                if bids.exists():
+                    total = sum(b.bid_price for b in bids)
+
+                    order = Order.objects.create(
+                        profile=profile,
+                        date=date.today(),
+                        total=total,
+                        stripe_session_id=session_id,
+                        stripe_payment_intent=session.get("payment_intent"),
+                        paid=True,
+                    )
+
+                    for b in bids:
+                        order.products.add(b.product)
+                        b.product.status = "sold"
+                        b.product.save()
+
+        return HttpResponse(status=200)
+
+
 
 class RateProductView(ProjectLoginRequiredMixin, FormView):
     form_class = RateProductForm

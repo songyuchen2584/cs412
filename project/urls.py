@@ -40,6 +40,11 @@ urlpatterns = [
     
     ### checkout and rating
     path("checkout/", CheckoutAcceptedBidsView.as_view(), name="checkout"),
+    path("stripe/create-checkout-session/", CreateCheckoutSessionView.as_view(), name="stripe_create_session"),
+    path("stripe/success/", StripeSuccessView.as_view(), name="stripe_success"),
+    path("stripe/cancel/", StripeCancelView.as_view(), name="stripe_cancel"),
+    path("stripe/webhook/", StripeWebhookView.as_view(), name="stripe_webhook"),
+
     path("product/<int:pk>/rate/", RateProductView.as_view(), name="rate_product"),
 
 
